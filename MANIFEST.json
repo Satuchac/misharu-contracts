@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.1.0",
-  "release_digest": "sha256:8a181a4bb22f03d265c7b1f09ecc5a4edcebf8c3e36cd9704c2a48015c005943",
-  "built_at": "2026-08-14T10:23:44.885Z",
+  "version": "0.2.0",
+  "release_digest": "sha256:6581e8007493242e561216b873bd1081afd5bbf87204a2eb38e99d672a5a80c2",
+  "built_at": "2026-08-14T10:51:31.440Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -101,10 +101,112 @@
       "what": "Sourcify results per EVM contract, including the exact_match status and when it was checked."
     },
     {
+      "path": "midnight/judge_escrow.compact",
+      "sha256": "sha256:60210b001f7df9d493043f218d61d767aec0363a191db1efc3421671c65781cf",
+      "bytes": 8708,
+      "what": "Compact contract with selective disclosure: manifest hash, evidence root and verdict always public; the work, the amount and the parties independently shieldable. NOT DEPLOYED."
+    },
+    {
+      "path": "midnight/contract-info.json",
+      "sha256": "sha256:a210242a80f9d8b5f6cd83b2aa5aa15ed65d6a13daf76a80e000cacc21fdb41a",
+      "bytes": 8001,
+      "what": "The compiler's own statement of what reaches the public ledger, what stays a private witness, and which circuits require a proof."
+    },
+    {
       "path": "LICENSE",
       "sha256": "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
       "bytes": 11358,
       "what": "Apache 2.0."
+    }
+  ],
+  "rails": [
+    {
+      "rail": "Base Sepolia",
+      "contract": "Judge escrow",
+      "address": "0xcD0b89BBB07B614E45c78B3C55d24e48E7F6EC81",
+      "status": "deployed",
+      "checked": "[exact_match](https://sourcify.dev/#/lookup/0xcD0b89BBB07B614E45c78B3C55d24e48E7F6EC81)",
+      "how": "Sourcify recompiles the source and compares it to the deployed bytecode."
+    },
+    {
+      "rail": "Base Sepolia",
+      "contract": "Judge key registry",
+      "address": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+      "status": "deployed",
+      "checked": "[exact_match](https://sourcify.dev/#/lookup/0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17)",
+      "how": "Sourcify recompiles the source and compares it to the deployed bytecode."
+    },
+    {
+      "rail": "Base Sepolia",
+      "contract": "Judge funding vault",
+      "address": "0xae8D16Dc169F9512233AA53BFe9BaB91485A55b7",
+      "status": "deployed",
+      "checked": "[exact_match](https://sourcify.dev/#/lookup/0xae8D16Dc169F9512233AA53BFe9BaB91485A55b7)",
+      "how": "Sourcify recompiles the source and compares it to the deployed bytecode."
+    },
+    {
+      "rail": "Base Sepolia",
+      "contract": "Demo escrow",
+      "address": "0x386E4A8caccad480FEa8D4611F9b365879cba218",
+      "status": "deployed",
+      "checked": "[exact_match](https://sourcify.dev/#/lookup/0x386E4A8caccad480FEa8D4611F9b365879cba218)",
+      "how": "Sourcify recompiles the source and compares it to the deployed bytecode."
+    },
+    {
+      "rail": "Ethereum Sepolia",
+      "contract": "Judge escrow",
+      "address": "0x89c5EA82daD056Edf7c95DBC52a1A5Be3b10D0D9",
+      "status": "deployed",
+      "checked": "[exact_match](https://sourcify.dev/#/lookup/0x89c5EA82daD056Edf7c95DBC52a1A5Be3b10D0D9)",
+      "how": "Sourcify recompiles the source and compares it to the deployed bytecode."
+    },
+    {
+      "rail": "Ethereum Sepolia",
+      "contract": "Judge key registry",
+      "address": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+      "status": "deployed",
+      "checked": "[exact_match](https://sourcify.dev/#/lookup/0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17)",
+      "how": "Sourcify recompiles the source and compares it to the deployed bytecode."
+    },
+    {
+      "rail": "Ethereum Sepolia",
+      "contract": "Demo escrow",
+      "address": "0x9e1F8018587b96e9637dF7159Aed26eB855C7c35",
+      "status": "deployed",
+      "checked": "[exact_match](https://sourcify.dev/#/lookup/0x9e1F8018587b96e9637dF7159Aed26eB855C7c35)",
+      "how": "Sourcify recompiles the source and compares it to the deployed bytecode."
+    },
+    {
+      "rail": "Cardano Preprod",
+      "contract": "Judge escrow (Aiken, Plutus V3)",
+      "address": "addr_test1wqd64yljcz2qay89xucwgnh5pmjpw04e3qa44qtjra8hwqgtv5j4z",
+      "status": "deployed",
+      "checked": "[script hash reproduces](https://preprod.cardanoscan.io/address/addr_test1wqd64yljcz2qay89xucwgnh5pmjpw04e3qa44qtjra8hwqgtv5j4z)",
+      "how": "blake2b-224 over the compiled script in plutus.json reproduces the on-chain script hash. No third party involved."
+    },
+    {
+      "rail": "Solana Devnet",
+      "contract": "Judge escrow (native Rust)",
+      "address": "954m2xXzhNpGCMrPL2chQGk8PjaAJ7i9i9B1F5JSsUZ5",
+      "status": "deployed",
+      "checked": "[source published](https://explorer.solana.com/address/954m2xXzhNpGCMrPL2chQGk8PjaAJ7i9i9B1F5JSsUZ5?cluster=devnet)",
+      "how": "Build from the published source and compare against the deployed program."
+    },
+    {
+      "rail": "Sui Testnet",
+      "contract": "Judge escrow (Move, judge_escrow)",
+      "address": "0xd17f278f4d62005cc726633eea98ab9ee77f21dc96ebee0c1479d95aac246089",
+      "status": "deployed",
+      "checked": "[source published](https://suiscan.xyz/testnet/object/0xd17f278f4d62005cc726633eea98ab9ee77f21dc96ebee0c1479d95aac246089)",
+      "how": "Build from the published source and compare against the deployed program."
+    },
+    {
+      "rail": "Midnight Preprod",
+      "contract": "Judge escrow (Compact, ZK)",
+      "address": "—",
+      "status": "compiled, not deployed",
+      "checked": "—",
+      "how": "Compiles under Compact 0.31.1 to three proof-carrying circuits. No deployment exists: funding a wallet needs tMIDNIGHT from a faucet with no programmatic API."
     }
   ],
   "deployments": {

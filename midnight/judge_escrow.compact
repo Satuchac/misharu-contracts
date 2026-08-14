@@ -1,0 +1,230 @@
+// Misharu escrow on Midnight — selective disclosure.
+//
+// Copyright (C) Misharu. SPDX-License-Identifier: Apache-2.0
+//
+// The other four rails publish everything. Every case bundle carries the
+// delivered work verbatim, the amount, and both parties' addresses, because
+// that is the only way a public chain can let a stranger check a settlement.
+//
+// For a bet on a price that is fine. For commercial work it is disqualifying:
+// no client is going to have their bug report, their patch and their invoice
+// published so that a third party can confirm the invoice was paid.
+//
+// Midnight lets the two be separated. What must stay public is the COMMITMENT
+// and the VERDICT — without those nothing is checkable and this is just a
+// database. What can be shielded is the CONTENT behind the commitment.
+//
+//   always public   manifest hash, evidence root, the verdict, the settlement
+//   optional        the evidence itself, the amount, who the parties are
+//
+// The parties choose, per agreement, at the moment they open it:
+//
+//   private work / public amount     a contractor's deliverable is confidential,
+//                                    but the treasury's spend is on the record
+//   public work / private amount     an open-source bounty where the patch is
+//                                    public and the price paid is nobody's business
+//   everything private               a commercial engagement between two firms
+//
+// WHAT IS STILL TRUE WHEN EVERYTHING IS SHIELDED. The manifest hash and the
+// evidence root are always on the ledger. So a party can still prove, later and
+// to anyone, exactly which agreement was decided and which evidence it was
+// decided on — by revealing the preimage to that one person. Shielding hides
+// the content from the public, not from the counterparty, and never from the
+// audit trail. A verdict without a public commitment would be unfalsifiable,
+// which is the one thing this protocol must never produce.
+
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+/** Mirrors the protocol's closed vocabulary. Nothing else may settle funds. */
+export enum Verdict {
+  PENDING,
+  ACCEPT,
+  REJECT,
+  INDETERMINATE
+}
+
+export enum Status {
+  OPEN,
+  FUNDED,
+  SETTLED
+}
+
+// ---------------------------------------------------------------- the ledger
+//
+// Everything below is PUBLIC. The rule for what earns a place here: if hiding
+// it would make a settlement impossible for an outsider to check, it is public.
+
+/** The agreement, committed before any work starts. Never optional. */
+export ledger manifest_hash: Bytes<32>;
+
+/**
+ * A commitment to the frozen evidence — not the evidence.
+ *
+ * This is the field that makes shielding safe. The root is public forever, so
+ * "the judge decided on evidence X" stays provable to anyone the parties choose
+ * to show X to, while X itself never reaches the chain.
+ */
+export ledger evidence_root: Bytes<32>;
+
+/** The outcome. Public unconditionally: a private verdict settles nothing. */
+export ledger verdict: Verdict;
+
+export ledger status: Status;
+
+/** Who may record the verdict. Named in the manifest before the work begins. */
+export ledger finalizer: Bytes<32>;
+
+// ---- what the parties chose to disclose ------------------------------------
+//
+// Recorded on the ledger so the CHOICE itself is public even when the values
+// are not. A reader can always see that an amount was withheld, which is very
+// different from not being able to tell whether there was one.
+
+export ledger disclose_amount: Boolean;
+export ledger disclose_parties: Boolean;
+export ledger disclose_evidence: Boolean;
+
+/** Present only when the parties chose to disclose it. */
+export ledger amount: Maybe<Uint<64>>;
+export ledger client: Maybe<Bytes<32>>;
+export ledger contractor: Maybe<Bytes<32>>;
+export ledger evidence: Maybe<Opaque<"string">>;
+
+/**
+ * Commitments to the shielded values.
+ *
+ * A shielded amount is not an absent amount. The commitment is published, so
+ * the funder is bound to one figure from the start and cannot claim a different
+ * one later — and either party can reveal the preimage to an auditor, a court
+ * or a counterparty without the chain ever having held it.
+ */
+export ledger amount_commitment: Bytes<32>;
+export ledger parties_commitment: Bytes<32>;
+
+// ------------------------------------------------------------------ witnesses
+//
+// Private inputs. These never touch the ledger unless a circuit explicitly
+// calls disclose() on them, which is the whole point of the design.
+
+witness localSecretKey(): Bytes<32>;
+witness privateAmount(): Uint<64>;
+witness privateSalt(): Bytes<32>;
+witness privateEvidence(): Opaque<"string">;
+
+// ------------------------------------------------------------------- circuits
+
+/**
+ * Open an agreement, and fix what will be public about it.
+ *
+ * The policy is chosen here and written to the ledger, before anything is
+ * funded and before any work is done. Choosing it later would mean choosing
+ * after seeing the outcome, which is the same failure as picking your judge
+ * after reading the delivery.
+ */
+export circuit open(
+  manifestHash: Bytes<32>,
+  evidenceRoot: Bytes<32>,
+  finalizerKey: Bytes<32>,
+  discloseAmount: Boolean,
+  discloseParties: Boolean,
+  discloseEvidence: Boolean
+): [] {
+  assert(status == Status.OPEN, "this escrow is already open");
+
+  manifest_hash = disclose(manifestHash);
+  evidence_root = disclose(evidenceRoot);
+  finalizer = disclose(finalizerKey);
+  verdict = Verdict.PENDING;
+
+  disclose_amount = disclose(discloseAmount);
+  disclose_parties = disclose(discloseParties);
+  disclose_evidence = disclose(discloseEvidence);
+
+  // The commitment is published whichever way the policy goes. When the value
+  // is public the commitment is redundant; when it is shielded the commitment
+  // is the only thing binding the funder to a figure, and a contract that only
+  // sometimes binds them would be the wrong shape.
+  amount_commitment = disclose(commitAmount(privateAmount(), privateSalt()));
+  parties_commitment = disclose(
+    commitParties(publicKey(localSecretKey()), privateSalt()));
+
+  amount = none<Uint<64>>();
+  client = none<Bytes<32>>();
+  contractor = none<Bytes<32>>();
+  evidence = none<Opaque<"string">>();
+}
+
+/**
+ * Fund it, revealing the amount only if the parties agreed to.
+ *
+ * Either way the amount is checked against the commitment made when the
+ * agreement was opened. A funder who could quietly lock a different figure than
+ * the one they committed to would make the commitment decorative.
+ */
+export circuit fund(contractorKey: Bytes<32>): [] {
+  assert(status == Status.OPEN, "not open for funding");
+
+  const value = privateAmount();
+  const salt = privateSalt();
+  assert(
+    commitAmount(value, salt) == amount_commitment,
+    "the amount does not match the commitment made when this agreement was opened"
+  );
+
+  if (disclose_amount) {
+    amount = disclose(some<Uint<64>>(value));
+  }
+  if (disclose_parties) {
+    client = disclose(some<Bytes<32>>(publicKey(localSecretKey())));
+    contractor = disclose(some<Bytes<32>>(contractorKey));
+  }
+
+  status = Status.FUNDED;
+}
+
+/**
+ * Record the verdict.
+ *
+ * Public whatever the disclosure policy says. A shielded verdict could not be
+ * acted on by anybody except the person who wrote it, which is exactly the
+ * arrangement this protocol exists to replace.
+ *
+ * The evidence is disclosed here rather than at funding time, because until the
+ * verdict exists there is nothing the evidence is being offered in support of.
+ */
+export circuit settle(outcome: Verdict): [] {
+  assert(status == Status.FUNDED, "nothing funded to settle");
+  assert(verdict == Verdict.PENDING, "already settled");
+  assert(
+    publicKey(localSecretKey()) == finalizer,
+    "only the finalizer named in the agreement may record a verdict"
+  );
+  assert(outcome != Verdict.PENDING, "PENDING is not a verdict");
+
+  verdict = disclose(outcome);
+
+  if (disclose_evidence) {
+    evidence = disclose(some<Opaque<"string">>(privateEvidence()));
+  }
+
+  status = Status.SETTLED;
+}
+
+// ------------------------------------------------------------------- helpers
+
+/** Domain-separated, like every other commitment in this protocol. */
+export circuit commitAmount(value: Uint<64>, salt: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>(
+    [pad(32, "misharu:amount:"), value as Field as Bytes<32>, salt]);
+}
+
+export circuit commitParties(party: Bytes<32>, salt: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>(
+    [pad(32, "misharu:parties:"), party, salt]);
+}
+
+export circuit publicKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "misharu:pk:"), sk]);
+}
