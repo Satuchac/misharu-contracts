@@ -1,0 +1,128 @@
+{
+  "checked_at": "2026-08-13T11:22:38.538Z",
+  "method": "Sourcify recompiles the submitted source and compares the result to the bytecode on chain. An exact_match means the metadata hash agrees too, so it is the same build — not merely equivalent behaviour.",
+  "verifier": "https://sourcify.dev",
+  "contracts": [
+    {
+      "chain": 84532,
+      "chainName": "Base Sepolia",
+      "label": "Judge escrow",
+      "address": "0xcD0b89BBB07B614E45c78B3C55d24e48E7F6EC81",
+      "source_id": "evm-escrow",
+      "verified": true,
+      "match": "exact_match",
+      "error": null,
+      "verified_at": "2026-08-13T11:21:07Z",
+      "sourcify": "https://repo.sourcify.dev/84532/0xcD0b89BBB07B614E45c78B3C55d24e48E7F6EC81",
+      "sourcify_ui": "https://sourcify.dev/#/lookup/0xcD0b89BBB07B614E45c78B3C55d24e48E7F6EC81"
+    },
+    {
+      "chain": 84532,
+      "chainName": "Base Sepolia",
+      "label": "Judge key registry",
+      "address": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+      "source_id": "evm-registry",
+      "verified": true,
+      "match": "exact_match",
+      "error": null,
+      "verified_at": "2026-08-13T11:19:58Z",
+      "sourcify": "https://repo.sourcify.dev/84532/0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+      "sourcify_ui": "https://sourcify.dev/#/lookup/0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17"
+    },
+    {
+      "chain": 84532,
+      "chainName": "Base Sepolia",
+      "label": "Judge funding vault",
+      "address": "0xae8D16Dc169F9512233AA53BFe9BaB91485A55b7",
+      "source_id": "evm-vault",
+      "verified": true,
+      "match": "exact_match",
+      "error": null,
+      "verified_at": "2026-08-13T11:21:22Z",
+      "sourcify": "https://repo.sourcify.dev/84532/0xae8D16Dc169F9512233AA53BFe9BaB91485A55b7",
+      "sourcify_ui": "https://sourcify.dev/#/lookup/0xae8D16Dc169F9512233AA53BFe9BaB91485A55b7"
+    },
+    {
+      "chain": 84532,
+      "chainName": "Base Sepolia",
+      "label": "Demo escrow",
+      "address": "0x386E4A8caccad480FEa8D4611F9b365879cba218",
+      "source_id": "evm-escrow",
+      "verified": true,
+      "match": "exact_match",
+      "error": null,
+      "verified_at": "2026-08-13T11:21:37Z",
+      "sourcify": "https://repo.sourcify.dev/84532/0x386E4A8caccad480FEa8D4611F9b365879cba218",
+      "sourcify_ui": "https://sourcify.dev/#/lookup/0x386E4A8caccad480FEa8D4611F9b365879cba218"
+    },
+    {
+      "chain": 11155111,
+      "chainName": "Ethereum Sepolia",
+      "label": "Judge escrow",
+      "address": "0x89c5EA82daD056Edf7c95DBC52a1A5Be3b10D0D9",
+      "source_id": "evm-escrow",
+      "verified": true,
+      "match": "exact_match",
+      "error": null,
+      "verified_at": "2026-08-13T11:21:56Z",
+      "sourcify": "https://repo.sourcify.dev/11155111/0x89c5EA82daD056Edf7c95DBC52a1A5Be3b10D0D9",
+      "sourcify_ui": "https://sourcify.dev/#/lookup/0x89c5EA82daD056Edf7c95DBC52a1A5Be3b10D0D9"
+    },
+    {
+      "chain": 11155111,
+      "chainName": "Ethereum Sepolia",
+      "label": "Judge key registry",
+      "address": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+      "source_id": "evm-registry",
+      "verified": true,
+      "match": "exact_match",
+      "error": null,
+      "verified_at": "2026-08-13T11:22:08Z",
+      "sourcify": "https://repo.sourcify.dev/11155111/0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+      "sourcify_ui": "https://sourcify.dev/#/lookup/0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17"
+    },
+    {
+      "chain": 11155111,
+      "chainName": "Ethereum Sepolia",
+      "label": "Demo escrow",
+      "address": "0x9e1F8018587b96e9637dF7159Aed26eB855C7c35",
+      "source_id": "evm-escrow",
+      "verified": true,
+      "match": "exact_match",
+      "error": null,
+      "verified_at": "2026-08-13T11:22:25Z",
+      "sourcify": "https://repo.sourcify.dev/11155111/0x9e1F8018587b96e9637dF7159Aed26eB855C7c35",
+      "sourcify_ui": "https://sourcify.dev/#/lookup/0x9e1F8018587b96e9637dF7159Aed26eB855C7c35"
+    }
+  ],
+  "cardano": {
+    "checked_at": "2026-08-13T11:23:23.357Z",
+    "chain": "Cardano Preprod",
+    "script_address": "addr_test1wqd64yljcz2qay89xucwgnh5pmjpw04e3qa44qtjra8hwqgtv5j4z",
+    "script_hash": "1baa93f2c0940e90e53730e44ef40ee4173eb9883b5a81721f4f7701",
+    "language": "plutusV3",
+    "compiled_bytes": 1014,
+    "source_path": "contracts/cardano/escrow/validators/judge_escrow.ak",
+    "source_sha256": "8f732d3bf1c62f3d6238bfe62466f44d5823e5d00e7f1f25ec2b714c6adbaf55",
+    "verified": true,
+    "checks": [
+      {
+        "name": "blueprint hash follows from compiled code",
+        "ok": true,
+        "detail": "blake2b224(0x03 || compiledCode) = 1baa93f2c0940e90e53730e44ef40ee4173eb9883b5a81721f4f7701"
+      },
+      {
+        "name": "script address contains that hash",
+        "ok": true,
+        "detail": "payment credential of addr_test1wqd64yljcz2qay… = 1baa93f2c0940e90e53730e44ef40ee4173eb9883b5a81721f4f7701"
+      },
+      {
+        "name": "on-chain script is byte-identical",
+        "ok": true,
+        "detail": "1014 bytes on chain, 1014 local, type plutusV3"
+      }
+    ],
+    "method": "blake2b-224 over the PlutusV3 language tag and the compiled script reproduces the deployed script hash, the script address embeds that hash, and Koios returns byte-identical script bytes. No third party attests to this — it is arithmetic anyone can repeat.",
+    "reproduce": "cd contracts/cardano/escrow && aiken build   # then: pnpm cardano:verify-script"
+  }
+}

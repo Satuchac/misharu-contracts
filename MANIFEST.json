@@ -1,0 +1,384 @@
+{
+  "name": "misharu-contracts",
+  "version": "0.1.0",
+  "release_digest": "sha256:8a181a4bb22f03d265c7b1f09ecc5a4edcebf8c3e36cd9704c2a48015c005943",
+  "built_at": "2026-08-14T10:23:44.885Z",
+  "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
+  "what_this_is_not": [
+    "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
+    "Not the engine. The judge, the console and the protocol implementation are not here.",
+    "Testnet only. No mainnet deployment exists."
+  ],
+  "how_to_check": {
+    "evm": "Compile with the compiler version in the Sourcify record and compare, or read the verified source at the sourcify URL in deployments/verification.json.",
+    "cardano": "aiken build, then blake2b-224 over the compiled script from plutus.json. The result is the on-chain script hash, and needs no third party.",
+    "solana": "cargo build-sbf and compare the program bytes against the deployed program id.",
+    "sui": "sui move build and compare against the published package."
+  },
+  "files": [
+    {
+      "path": "evm/JudgeEscrowV1.sol",
+      "sha256": "sha256:520f1f01dbf24466ec4b0be77bb8c50c4dddcf3011f4922d707e9cc44dde592d",
+      "bytes": 20277,
+      "what": "Escrow: funding, submission, provisional verdict, challenge window, finalize, timeout refund."
+    },
+    {
+      "path": "evm/JudgeFundingVault.sol",
+      "sha256": "sha256:b72b6bd8b379da917156b607abd9a43462532df1b4d5ef0eb6f51e8258b13fa3",
+      "bytes": 11437,
+      "what": "Funds judge evaluation separately, with a capped platform fee and a timelock on raising it."
+    },
+    {
+      "path": "evm/JudgeKeyRegistry.sol",
+      "sha256": "sha256:bcd8828f2beff09726794a46a07d72c0d82ac65de357cac0f1260e097c63cce6",
+      "bytes": 2094,
+      "what": "Which keys may sign a verdict for a given judge."
+    },
+    {
+      "path": "cardano/judge_escrow.ak",
+      "sha256": "sha256:8f732d3bf1c62f3d6238bfe62466f44d5823e5d00e7f1f25ec2b714c6adbaf55",
+      "bytes": 4085,
+      "what": "Aiken validator, Plutus V3. FinalizeAccept / FinalizeReject / Expire / MutualCancel."
+    },
+    {
+      "path": "cardano/aiken.toml",
+      "sha256": "sha256:29967ebe3389db472b236bce37227765b26d2ae3aa68628268ec3970788f4647",
+      "bytes": 323,
+      "what": "Build configuration, including the exact stdlib revision the artifact was compiled against."
+    },
+    {
+      "path": "cardano/plutus.json",
+      "sha256": "sha256:6039408782d2efb47191c7a10ce3b9522e362ad3c9a5371c6974ed32f0f98a2b",
+      "bytes": 6925,
+      "what": "Compiled blueprint: the script bytes and their hash. blake2b-224 of the script reproduces the on-chain hash."
+    },
+    {
+      "path": "cardano/script-address.txt",
+      "sha256": "sha256:b5c09b68a0698768f63e3ab29e019de73f198d9f8382fa6905638ccfbf1b8e14",
+      "bytes": 64,
+      "what": "The Preprod address the blueprint compiles to."
+    },
+    {
+      "path": "solana/lib.rs",
+      "sha256": "sha256:4dc51b9a8d2f1225a24a8364070bb85dfa8b292ba34e4b7fa049c2a2567a21ab",
+      "bytes": 15860,
+      "what": "Native Rust program: create-and-fund, submit, record provisional, finalize, expire-and-refund."
+    },
+    {
+      "path": "solana/Cargo.toml",
+      "sha256": "sha256:ae085f8eaa2f5c0928c779851d23ee0bc40e211e8ad7b3cd8785d075c4903ff9",
+      "bytes": 189,
+      "what": "Crate manifest, pinning the toolchain the deployed program was built with."
+    },
+    {
+      "path": "sui/judge_escrow.move",
+      "sha256": "sha256:02fb170f71a3348e4adcbe8b85cd230a2e26e67839d8c4ecdd951731dd28ebc8",
+      "bytes": 11834,
+      "what": "Move module, including the two-step mutual cancel."
+    },
+    {
+      "path": "sui/Move.toml",
+      "sha256": "sha256:f1b3dbc9379ce546a81374209f31bb0fe6744e0b84078ef7801435ae72a89d02",
+      "bytes": 270,
+      "what": "Package manifest."
+    },
+    {
+      "path": "deployments/registry.json",
+      "sha256": "sha256:58624dff8b14e58f7822c050b5a8626b19e16bb6470e65b23a1a4b860b994209",
+      "bytes": 10857,
+      "what": "Every deployment: network, address, and when it was recorded."
+    },
+    {
+      "path": "deployments/known-addresses.json",
+      "sha256": "sha256:0a2d1741e8bc6e6a49e93f36517420a557b44650cc8a9e6545bf858e23ee3dbf",
+      "bytes": 8164,
+      "what": "Named addresses, so a reader can tell a deployer from a party."
+    },
+    {
+      "path": "deployments/verification.json",
+      "sha256": "sha256:23e73aa558e8da62d7b0303bf80b51027451e104e887d36af81659d234bfe775",
+      "bytes": 5426,
+      "what": "Sourcify results per EVM contract, including the exact_match status and when it was checked."
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "sha256:cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358,
+      "what": "Apache 2.0."
+    }
+  ],
+  "deployments": {
+    "$comment": "Deployment registry — source of truth for the admin overview (pnpm admin). Update via scripts/deploy-testnet.sh output.",
+    "updated": "2026-07-28",
+    "deployer": "0x252298725bdec8AaBB1504f8aC239b0CbC2745C4",
+    "evm": [
+      {
+        "id": "local-anvil",
+        "name": "Anvil (local rehearsal)",
+        "chainId": 31337,
+        "rpc": "http://127.0.0.1:18545",
+        "status": "rehearsal-verified",
+        "note": "Full deploy + create/fund lifecycle verified 2026-07-28; ephemeral — addresses not stable",
+        "contracts": null
+      },
+      {
+        "id": "base-sepolia",
+        "name": "Base Sepolia",
+        "chainId": 84532,
+        "rpc": "https://sepolia.base.org",
+        "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "status": "deployed",
+        "faucets": [
+          "https://portal.cdp.coinbase.com/products/faucet",
+          "https://www.alchemy.com/faucets/base-sepolia"
+        ],
+        "contracts": {
+          "escrow": "0xcD0b89BBB07B614E45c78B3C55d24e48E7F6EC81",
+          "registry": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+          "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          "funding_vault_v2": "0xae8D16Dc169F9512233AA53BFe9BaB91485A55b7"
+        },
+        "deployed_at": "2026-07-28",
+        "explorer": "https://sepolia.basescan.org/address/0xcD0b89BBB07B614E45c78B3C55d24e48E7F6EC81",
+        "funding": {
+          "asset": "testnet ETH",
+          "address": "0x252298725bdec8AaBB1504f8aC239b0CbC2745C4"
+        },
+        "note": "v1.1 (security fixes: committed challenge-window floor, no fee on full refund). Superseded: 0x89c5EA82…10D0D9",
+        "contract_version": "v1.1",
+        "funding_vault_note": "v2 adds claimForJudge (third-party judges paid directly) and an operator-settable platform fee: capped at 20% immutably, raises timelocked 7 days, and every deposit locks the rate in force when it was funded. Verified on-chain 12/12 — deployments/fee-split-verification.json"
+      },
+      {
+        "id": "eth-sepolia",
+        "name": "Ethereum Sepolia",
+        "chainId": 11155111,
+        "rpc": "https://ethereum-sepolia-rpc.publicnode.com",
+        "usdc": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+        "status": "deployed",
+        "faucets": [
+          "https://cloud.google.com/application/web3/faucet/ethereum/sepolia",
+          "https://sepolia-faucet.pk910.de"
+        ],
+        "contracts": {
+          "escrow": "0x89c5EA82daD056Edf7c95DBC52a1A5Be3b10D0D9",
+          "registry": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+          "token": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
+        },
+        "funding": {
+          "asset": "testnet ETH",
+          "address": "0x252298725bdec8AaBB1504f8aC239b0CbC2745C4"
+        },
+        "contract_version": "v1.1",
+        "explorer": "https://sepolia.etherscan.io/address/0x89c5EA82daD056Edf7c95DBC52a1A5Be3b10D0D9",
+        "note": "v1.1 with Circle testnet USDC; deployed once gas fell to ~1.1 gwei"
+      },
+      {
+        "id": "base-sepolia-demo",
+        "name": "Base Sepolia (demo · TestUSDC)",
+        "chainId": 84532,
+        "rpc": "https://sepolia.base.org",
+        "status": "deployed",
+        "note": "v1.1 demo instance with anyone-mintable TestUSDC (testnets only). Superseded: 0x68892C57…69c04",
+        "contracts": {
+          "escrow": "0x386E4A8caccad480FEa8D4611F9b365879cba218",
+          "registry": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+          "token": "0x8868cD5fd33C0bD65a7e83124730c7C0898c5c07"
+        },
+        "deployed_at": "2026-07-28",
+        "explorer": "https://sepolia.basescan.org/address/0x386E4A8caccad480FEa8D4611F9b365879cba218",
+        "contract_version": "v1.1",
+        "funding_vault": "0xe602CCc75a835f313AB6351a6622218E17Be6126"
+      },
+      {
+        "id": "eth-sepolia-demo",
+        "name": "Ethereum Sepolia (demo · TestUSDC)",
+        "chainId": 11155111,
+        "rpc": "https://ethereum-sepolia-rpc.publicnode.com",
+        "status": "deployed",
+        "contract_version": "v1.1",
+        "note": "self-sufficient demo instance with anyone-mintable TestUSDC (testnets only)",
+        "contracts": {
+          "escrow": "0x9e1F8018587b96e9637dF7159Aed26eB855C7c35",
+          "registry": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+          "token": "0xf623Dc199cB30cC9e12fAd8bBB5962ecAc80Dc58"
+        },
+        "explorer": "https://sepolia.etherscan.io/address/0x9e1F8018587b96e9637dF7159Aed26eB855C7c35"
+      }
+    ],
+    "non_evm": [
+      {
+        "id": "cardano-preprod",
+        "name": "Cardano Preprod",
+        "status": "LIVE — all four redeemers executed on-chain, 12/12 edge cases rejected, and judgements settled end-to-end with the escrow datum bound to the bundle",
+        "path": "Aiken Plutus V3 validator, same lifecycle as JudgeEscrowV1: FinalizeAccept/FinalizeReject (finalizer-signed, after the challenge window, before recovery), Expire (unblockable refund by anyone), MutualCancel. Timing proved by the tx validity interval; payouts checked against datum credentials.",
+        "grant": "Pyth grant M3 vehicle — decision tracked in issue #2",
+        "registration": "docs/integrations/masumi-registration.md",
+        "funding": {
+          "asset": "test-ADA (Preprod)",
+          "address": "addr_test1vpdgs94jg65ktrukxxsvnccm24eddrmpwjxxclvudnpmwsc9x99ay",
+          "faucets": [
+            "https://docs.cardano.org/cardano-testnets/tools/faucet (select Preprod)"
+          ]
+        },
+        "deployer": "addr_test1vpdgs94jg65ktrukxxsvnccm24eddrmpwjxxclvudnpmwsc9x99ay",
+        "contracts": {
+          "script_address": "addr_test1wqd64yljcz2qay89xucwgnh5pmjpw04e3qa44qtjra8hwqgtv5j4z",
+          "script_hash": "1baa93f2c0940e90e53730e44ef40ee4173eb9883b5a81721f4f7701"
+        },
+        "explorer": "https://preprod.cardanoscan.io/address/addr_test1wqd64yljcz2qay89xucwgnh5pmjpw04e3qa44qtjra8hwqgtv5j4z",
+        "live": {
+          "locked_lovelace": "5000000",
+          "locked_ada": 5,
+          "lock_tx": "4d41b20a7d7309c5b8211a6ceb1b9548028b44c18fd339e0f261d55d1595840d",
+          "utxos": 1,
+          "inline_datum": true
+        },
+        "settlements": {
+          "expire": {
+            "tx": "5881c387c514e9da33a3ddb574e5bfc5705d4719d80e963d1e3bc016f9fc79ff",
+            "note": "Recovery deadline passed; anyone may refund the buyer. Script address drained to 0."
+          },
+          "finalize_accept": {
+            "tx": "aa5e4b5968513702d9244297d94b5c10672032aeff86914a3573e3b285873a43",
+            "note": "Finalizer-signed ACCEPT inside the window; provider paid."
+          },
+          "edge_cases": "deployments/cardano-edge-cases.json — 12/12 rejected by script evaluation, across all four redeemers",
+          "mutual_cancel": {
+            "tx": "ced2f5d6e8d58abd5ab27e1c345513e2b9f363715073b0c896b4a466e453e4e8",
+            "note": "Buyer and provider are DIFFERENT keys and both signed; the agreement was unwound by consent and the buyer refunded. With one key playing both roles this redeemer cannot be tested — a single signature would satisfy both checks."
+          },
+          "finalize_reject": {
+            "tx": "128fb58f11071feb8e4882e7825120d08d029420e64b166dcda8296c6dae0571",
+            "note": "Finalizer-signed REJECT inside the window; the buyer was refunded while the provider — a different key — received nothing. The mirror of finalize_accept, and the path that proves a verdict can move funds in either direction."
+          }
+        },
+        "settled_judgements": {
+          "accept": {
+            "case": "cardano-preprod-settled-accept-eadd0",
+            "tx": "3c609b88b06bdb8dadca876fc865e5e6d2df362432fddea3e085d34cdbdfbedf",
+            "note": "Provider paid. The provider is a different key from the buyer, so the payout is a real transfer rather than change returning to the same wallet."
+          },
+          "reject": {
+            "case": "cardano-preprod-settled-reject-cb908",
+            "tx": "0201ef960020102fdc1d52be03d5462f759bfe0c6b12b4fb8040686b95117296",
+            "note": "Buyer refunded."
+          },
+          "binding": "Each lock datum carries the bundle's manifest_hash and evidence_root. `pnpm cardano:verify-binding` reads the datum back from Koios and compares — the escrow and the judgement governing it are provably the same agreement, not two records filed together."
+        }
+      },
+      {
+        "id": "solana-devnet",
+        "name": "Solana Devnet",
+        "status": "LIVE — program deployed",
+        "path": "Native Rust program (no Anchor). Job account holds state and lamports; same invariants as JudgeEscrowV1 — settle at most once, provider-only submit, finalizer-only verdicts, committed challenge-window floor enforced on-chain, and ExpireAndRefund with no signature check so the recovery path can never be blocked.",
+        "deployer": "2ji568ypD94GGsFqBpXxSCq4gWPN57ThxA4SBJh6AMDW",
+        "funding": {
+          "asset": "devnet SOL",
+          "address": "2ji568ypD94GGsFqBpXxSCq4gWPN57ThxA4SBJh6AMDW",
+          "faucets": [
+            "https://faucet.solana.com",
+            "https://portal.cdp.coinbase.com/products/faucet (Solana Devnet)"
+          ]
+        },
+        "contracts": {
+          "program_id": "954m2xXzhNpGCMrPL2chQGk8PjaAJ7i9i9B1F5JSsUZ5"
+        },
+        "live": {
+          "executable": true,
+          "loader": "BPFLoaderUpgradeab1e11111111111111111111111",
+          "deploy_signature": "5sTAhdViDn5yvdAYP9dEUk29rZFfQVfbh9TSdAnmoseZyYqzxD66eU8S8G1JTyUNfzLCQ7d1fsMskKMbgqfciT3N"
+        },
+        "explorer": "https://explorer.solana.com/address/954m2xXzhNpGCMrPL2chQGk8PjaAJ7i9i9B1F5JSsUZ5?cluster=devnet"
+      },
+      {
+        "id": "sui-testnet",
+        "name": "Sui Testnet",
+        "status": "LIVE — republished after fixing a confirmed authority bug; settles end-to-end",
+        "path": "Move package: shared Job object holding Balance<SUI>. Same invariants as JudgeEscrowV1 — settle at most once, only the provider submits, only the declared finalizer decides, committed challenge-window floor enforced on-chain, expire_and_refund callable by anyone after the recovery deadline.",
+        "deployer": "0x8e0decbad7a1faad77e9207d51cf30d78873e5a6059dd90e7cac1e2199d6e155",
+        "funding": {
+          "asset": "testnet SUI",
+          "address": "0x8e0decbad7a1faad77e9207d51cf30d78873e5a6059dd90e7cac1e2199d6e155",
+          "faucets": [
+            "https://faucet.sui.io"
+          ]
+        },
+        "contracts": {
+          "package_id": "0xd17f278f4d62005cc726633eea98ab9ee77f21dc96ebee0c1479d95aac246089",
+          "module": "judge_escrow"
+        },
+        "explorer": "https://suiscan.xyz/testnet/object/0xd17f278f4d62005cc726633eea98ab9ee77f21dc96ebee0c1479d95aac246089",
+        "history": [
+          {
+            "package_id": "0x2285a350cde9429d611d9211efa39f71e13dd70f24370f39d779c3edd699bcb0",
+            "withdrawn": "2026-07-28",
+            "reason": "mutual_cancel authorised the buyer alone, letting a buyer reclaim the whole escrow after the provider delivered. Confirmed on testnet, then fixed. Do not use."
+          }
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "checked_at": "2026-08-13T11:22:38.538Z",
+    "verifier": "https://sourcify.dev",
+    "method": "Sourcify recompiles the submitted source and compares the result to the bytecode on chain. An exact_match means the metadata hash agrees too, so it is the same build — not merely equivalent behaviour.",
+    "contracts": [
+      {
+        "chain": "Base Sepolia",
+        "label": "Judge escrow",
+        "address": "0xcD0b89BBB07B614E45c78B3C55d24e48E7F6EC81",
+        "verified": true,
+        "match": "exact_match",
+        "sourcify": "https://sourcify.dev/#/lookup/0xcD0b89BBB07B614E45c78B3C55d24e48E7F6EC81"
+      },
+      {
+        "chain": "Base Sepolia",
+        "label": "Judge key registry",
+        "address": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+        "verified": true,
+        "match": "exact_match",
+        "sourcify": "https://sourcify.dev/#/lookup/0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17"
+      },
+      {
+        "chain": "Base Sepolia",
+        "label": "Judge funding vault",
+        "address": "0xae8D16Dc169F9512233AA53BFe9BaB91485A55b7",
+        "verified": true,
+        "match": "exact_match",
+        "sourcify": "https://sourcify.dev/#/lookup/0xae8D16Dc169F9512233AA53BFe9BaB91485A55b7"
+      },
+      {
+        "chain": "Base Sepolia",
+        "label": "Demo escrow",
+        "address": "0x386E4A8caccad480FEa8D4611F9b365879cba218",
+        "verified": true,
+        "match": "exact_match",
+        "sourcify": "https://sourcify.dev/#/lookup/0x386E4A8caccad480FEa8D4611F9b365879cba218"
+      },
+      {
+        "chain": "Ethereum Sepolia",
+        "label": "Judge escrow",
+        "address": "0x89c5EA82daD056Edf7c95DBC52a1A5Be3b10D0D9",
+        "verified": true,
+        "match": "exact_match",
+        "sourcify": "https://sourcify.dev/#/lookup/0x89c5EA82daD056Edf7c95DBC52a1A5Be3b10D0D9"
+      },
+      {
+        "chain": "Ethereum Sepolia",
+        "label": "Judge key registry",
+        "address": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+        "verified": true,
+        "match": "exact_match",
+        "sourcify": "https://sourcify.dev/#/lookup/0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17"
+      },
+      {
+        "chain": "Ethereum Sepolia",
+        "label": "Demo escrow",
+        "address": "0x9e1F8018587b96e9637dF7159Aed26eB855C7c35",
+        "verified": true,
+        "match": "exact_match",
+        "sourcify": "https://sourcify.dev/#/lookup/0x9e1F8018587b96e9637dF7159Aed26eB855C7c35"
+      }
+    ]
+  }
+}
