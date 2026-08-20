@@ -1,0 +1,194 @@
+// Misharu — m-of-n finalizers, enforced on chain.
+//
+// Copyright (C) Misharu. SPDX-License-Identifier: Apache-2.0
+//
+// WHAT THIS FIXES.
+//
+// `packages/receipt/src/threshold.ts` requires m of n signatures for a RECEIPT
+// to verify. That is worth having — a theft becomes detectable — but it does not
+// stop anything: the escrows check one signature each, so whoever holds the
+// single on-chain finalizer key can still move funds alone and simply produce a
+// receipt nobody can verify.
+//
+// This contract closes that on the ZK rail. Settlement requires m distinct
+// registered finalizers to approve, each in their own transaction from their own
+// machine. One compromised key is no longer sufficient; it is one vote.
+//
+// WHY APPROVALS ARE SEPARATE TRANSACTIONS.
+//
+// A circuit has one caller. There is no way for three key holders to sign one
+// proof, so "m-of-n" has to mean m separate calls, each proving knowledge of a
+// different registered secret. That is slower and it is the honest construction:
+// the alternative — one caller submitting three signatures — puts all three keys
+// on one machine, which is the situation this exists to end.
+//
+// WHAT IT STILL DOES NOT FIX.
+//
+// The other three rails. Base Sepolia checks one EIP-712 signature, Cardano one
+// key hash, Solana one pubkey. A cross-chain settlement is therefore still
+// single-signature on the public side even when the private side required three.
+// That gap is real and is stated in docs/THREAT-MODEL.md rather than papered
+// over by this contract's existence.
+
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+export enum Verdict {
+  PENDING,
+  ACCEPT,
+  REJECT,
+  INDETERMINATE
+}
+
+export enum Status {
+  OPEN,
+  FUNDED,
+  SETTLED
+}
+
+export ledger manifest_hash: Bytes<32>;
+export ledger evidence_root: Bytes<32>;
+export ledger status: Status;
+export ledger verdict: Verdict;
+
+/** The registered finalizers, and how many must agree. Both public: a threshold nobody can see is not a threshold. */
+export ledger finalizers: Map<Bytes<32>, Boolean>;
+export ledger threshold: Uint<8>;
+export ledger finalizer_count: Uint<8>;
+
+/**
+ * Who has approved, keyed by public key.
+ *
+ * A Map rather than a counter alone. With only a counter, one key holder calling
+ * `approve` three times satisfies a 3-of-5 by themselves — the exact failure
+ * that turns m-of-n into 1-of-n, and the one the receipt-layer tests already
+ * had to guard against.
+ */
+export ledger approvals: Map<Bytes<32>, Boolean>;
+export ledger approval_count: Uint<8>;
+
+/**
+ * The outcome the first approver proposed.
+ *
+ * Later approvers must match it. Without this, three finalizers could each
+ * approve a different verdict and the threshold would be met by people who
+ * disagree — a settlement nobody voted for.
+ */
+export ledger proposed: Verdict;
+
+witness localSecretKey(): Bytes<32>;
+
+export circuit publicKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "misharu:pk:"), sk]);
+}
+
+/**
+ * Open, registering the finalizer set and the threshold.
+ *
+ * Nine slots, fixed. A variable-length set would need a loop over a runtime
+ * bound, which Compact does not allow inside a circuit, so the slots are
+ * declared and the limit is explicit rather than discovered.
+ *
+ * It was five, which could not express the committees people actually asked
+ * for — 4-of-6 and 5-of-9. Nine covers those with the quorum still a majority.
+ * Beyond nine the honest answer is that this is not a voting system, and a
+ * twenty-seat panel wants different machinery than nine `if` branches.
+ */
+export circuit open(
+  manifestHash: Bytes<32>,
+  evidenceRoot: Bytes<32>,
+  m: Uint<8>,
+  n: Uint<8>,
+  f0: Bytes<32>,
+  f1: Bytes<32>,
+  f2: Bytes<32>,
+  f3: Bytes<32>,
+  f4: Bytes<32>,
+  f5: Bytes<32>,
+  f6: Bytes<32>,
+  f7: Bytes<32>,
+  f8: Bytes<32>
+): [] {
+  assert(status == Status.OPEN, "this escrow is already open");
+  assert(n >= 1 && n <= 9, "between one and nine finalizers");
+  assert(m >= 1, "a threshold of zero would let anyone settle");
+  assert(m <= n, "a threshold above the finalizer count can never be met");
+
+  manifest_hash = disclose(manifestHash);
+  evidence_root = disclose(evidenceRoot);
+  threshold = disclose(m);
+
+  /**
+   * Disclosed once, into a local, and every branch below reads THAT.
+   *
+   * The compiler refuses `if (n >= 2)` on an undisclosed parameter, and it is
+   * right to: branching on a value leaks the comparison's result through which
+   * ledger operations happen. Here the count is public by design — a threshold
+   * whose denominator is secret is not a threshold — so disclosing it up front
+   * is both correct and makes the leak deliberate rather than incidental.
+   */
+  const nn = disclose(n);
+  finalizer_count = nn;
+
+  /**
+   * Inserting a key twice is how a 2-of-3 becomes a 1-of-2 while still reading
+   * as 2-of-3. `insert` on a Map is idempotent by key, so a duplicate collapses
+   * — and the count would then exceed the true membership. Asserted, not hoped.
+   */
+  finalizers.insert(disclose(f0), true);
+  if (nn >= 2) { finalizers.insert(disclose(f1), true); }
+  if (nn >= 3) { finalizers.insert(disclose(f2), true); }
+  if (nn >= 4) { finalizers.insert(disclose(f3), true); }
+  if (nn >= 5) { finalizers.insert(disclose(f4), true); }
+  if (nn >= 6) { finalizers.insert(disclose(f5), true); }
+  if (nn >= 7) { finalizers.insert(disclose(f6), true); }
+  if (nn >= 8) { finalizers.insert(disclose(f7), true); }
+  if (nn >= 9) { finalizers.insert(disclose(f8), true); }
+  assert(finalizers.size() as Uint<8> == nn, "a finalizer key was registered more than once");
+
+  verdict = Verdict.PENDING;
+  proposed = Verdict.PENDING;
+  approval_count = 0;
+  status = Status.FUNDED;
+}
+
+/**
+ * Approve an outcome. One vote per registered key.
+ *
+ * The caller proves knowledge of a registered secret; nothing about which one
+ * reaches the ledger beyond the public key already registered there.
+ */
+export circuit approve(outcome: Verdict): [] {
+  assert(status == Status.FUNDED, "this escrow is not accepting approvals");
+  assert(outcome != Verdict.PENDING, "PENDING is not a verdict anyone may approve");
+
+  const me = publicKey(localSecretKey());
+  assert(finalizers.member(disclose(me)), "only a registered finalizer may approve");
+  assert(!approvals.member(disclose(me)), "this finalizer has already approved");
+
+  /** The first approval fixes the outcome; the rest must agree with it. */
+  if (approval_count == 0) {
+    proposed = disclose(outcome);
+  }
+  assert(outcome == proposed, "this approval is for a different outcome than the one proposed");
+
+  approvals.insert(disclose(me), true);
+  approval_count = disclose((approval_count + 1) as Uint<8>);
+}
+
+/**
+ * Settle, once enough distinct finalizers have agreed.
+ *
+ * Deliberately callable by anyone. The authority is the set of approvals already
+ * recorded, not the identity of whoever submits this transaction — and a
+ * settlement that only the approvers can trigger is one they can also withhold.
+ */
+export circuit settle(): [] {
+  assert(status == Status.FUNDED, "nothing to settle");
+  assert(approval_count >= threshold, "not enough finalizers have approved");
+  assert(proposed != Verdict.PENDING, "no outcome was proposed");
+
+  verdict = proposed;
+  status = Status.SETTLED;
+}

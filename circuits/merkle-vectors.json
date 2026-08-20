@@ -1,0 +1,554 @@
+{
+  "what_this_is": "Merkle inclusion vectors, shared by every implementation of the disclosure proof.",
+  "why": "packages/receipt/src/disclosure.ts and the Noir circuit must agree on leaf hashing, node hashing and — the case a naive tree gets wrong — the promoted node in an odd-length level. A divergence there means a disclosure that verifies for one party and not the other.",
+  "leaf_scheme": "sha256(0x00 || content)",
+  "node_scheme": "sha256(0x01 || left || right); an odd node at a level is promoted unchanged",
+  "trees": [
+    {
+      "size": 1,
+      "root": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+      "note": "even length",
+      "members": [
+        {
+          "index": 0,
+          "content": "item-0",
+          "leaf": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+          "proof": []
+        }
+      ]
+    },
+    {
+      "size": 2,
+      "root": "7e276c34756b44b65ba40ff98b4a72a6a56af9e75d649cdad7dc98be9459cb75",
+      "note": "even length",
+      "members": [
+        {
+          "index": 0,
+          "content": "item-0",
+          "leaf": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+          "proof": [
+            {
+              "sibling": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "content": "item-1",
+          "leaf": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+          "proof": [
+            {
+              "sibling": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+              "side": "left"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "size": 3,
+      "root": "29c5ddb153c57eaa07dc7795614ea660f6967ff71ab5d60f6e4cf2ed9ba6f70a",
+      "note": "odd length: exercises the promoted node",
+      "members": [
+        {
+          "index": 0,
+          "content": "item-0",
+          "leaf": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+          "proof": [
+            {
+              "sibling": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+              "side": "right"
+            },
+            {
+              "sibling": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "content": "item-1",
+          "leaf": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+          "proof": [
+            {
+              "sibling": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+              "side": "left"
+            },
+            {
+              "sibling": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "content": "item-2",
+          "leaf": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+          "proof": [
+            {
+              "sibling": "7e276c34756b44b65ba40ff98b4a72a6a56af9e75d649cdad7dc98be9459cb75",
+              "side": "left"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "size": 4,
+      "root": "3515393063f9aa656a1c96ca29b5daba352454af816cf384e6d467ff01edfa9e",
+      "note": "even length",
+      "members": [
+        {
+          "index": 0,
+          "content": "item-0",
+          "leaf": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+          "proof": [
+            {
+              "sibling": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+              "side": "right"
+            },
+            {
+              "sibling": "abab2b0421312742919750383a29a5eeba7c4abb8db35591fc3699d0a6e43ea0",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "content": "item-1",
+          "leaf": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+          "proof": [
+            {
+              "sibling": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+              "side": "left"
+            },
+            {
+              "sibling": "abab2b0421312742919750383a29a5eeba7c4abb8db35591fc3699d0a6e43ea0",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "content": "item-2",
+          "leaf": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+          "proof": [
+            {
+              "sibling": "df8bafa2ed4bcd79885aee031cfeec388b04cc81ddea44c73eb5c7f0d57024a9",
+              "side": "right"
+            },
+            {
+              "sibling": "7e276c34756b44b65ba40ff98b4a72a6a56af9e75d649cdad7dc98be9459cb75",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "content": "item-3",
+          "leaf": "df8bafa2ed4bcd79885aee031cfeec388b04cc81ddea44c73eb5c7f0d57024a9",
+          "proof": [
+            {
+              "sibling": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+              "side": "left"
+            },
+            {
+              "sibling": "7e276c34756b44b65ba40ff98b4a72a6a56af9e75d649cdad7dc98be9459cb75",
+              "side": "left"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "size": 5,
+      "root": "baa6733f765d115e14da4b45188ff409af71852ce8b76ffdb1ee6647b82813c6",
+      "note": "odd length: exercises the promoted node",
+      "members": [
+        {
+          "index": 0,
+          "content": "item-0",
+          "leaf": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+          "proof": [
+            {
+              "sibling": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+              "side": "right"
+            },
+            {
+              "sibling": "abab2b0421312742919750383a29a5eeba7c4abb8db35591fc3699d0a6e43ea0",
+              "side": "right"
+            },
+            {
+              "sibling": "4f4582c6dce222ae1ef6ca02ebe4b9c225e96e06290ff8d19fadcbc638338e0b",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "content": "item-1",
+          "leaf": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+          "proof": [
+            {
+              "sibling": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+              "side": "left"
+            },
+            {
+              "sibling": "abab2b0421312742919750383a29a5eeba7c4abb8db35591fc3699d0a6e43ea0",
+              "side": "right"
+            },
+            {
+              "sibling": "4f4582c6dce222ae1ef6ca02ebe4b9c225e96e06290ff8d19fadcbc638338e0b",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "content": "item-2",
+          "leaf": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+          "proof": [
+            {
+              "sibling": "df8bafa2ed4bcd79885aee031cfeec388b04cc81ddea44c73eb5c7f0d57024a9",
+              "side": "right"
+            },
+            {
+              "sibling": "7e276c34756b44b65ba40ff98b4a72a6a56af9e75d649cdad7dc98be9459cb75",
+              "side": "left"
+            },
+            {
+              "sibling": "4f4582c6dce222ae1ef6ca02ebe4b9c225e96e06290ff8d19fadcbc638338e0b",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "content": "item-3",
+          "leaf": "df8bafa2ed4bcd79885aee031cfeec388b04cc81ddea44c73eb5c7f0d57024a9",
+          "proof": [
+            {
+              "sibling": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+              "side": "left"
+            },
+            {
+              "sibling": "7e276c34756b44b65ba40ff98b4a72a6a56af9e75d649cdad7dc98be9459cb75",
+              "side": "left"
+            },
+            {
+              "sibling": "4f4582c6dce222ae1ef6ca02ebe4b9c225e96e06290ff8d19fadcbc638338e0b",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "content": "item-4",
+          "leaf": "4f4582c6dce222ae1ef6ca02ebe4b9c225e96e06290ff8d19fadcbc638338e0b",
+          "proof": [
+            {
+              "sibling": "3515393063f9aa656a1c96ca29b5daba352454af816cf384e6d467ff01edfa9e",
+              "side": "left"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "size": 7,
+      "root": "027a33d1a345a1383cb07b02d46652ed0c39600828b84ed72479fc164416423a",
+      "note": "odd length: exercises the promoted node",
+      "members": [
+        {
+          "index": 0,
+          "content": "item-0",
+          "leaf": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+          "proof": [
+            {
+              "sibling": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+              "side": "right"
+            },
+            {
+              "sibling": "abab2b0421312742919750383a29a5eeba7c4abb8db35591fc3699d0a6e43ea0",
+              "side": "right"
+            },
+            {
+              "sibling": "2d82d40d81a2c46f792624f7cca99c11429bd1807a91a3ae47a50e8df6cd6880",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "content": "item-1",
+          "leaf": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+          "proof": [
+            {
+              "sibling": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+              "side": "left"
+            },
+            {
+              "sibling": "abab2b0421312742919750383a29a5eeba7c4abb8db35591fc3699d0a6e43ea0",
+              "side": "right"
+            },
+            {
+              "sibling": "2d82d40d81a2c46f792624f7cca99c11429bd1807a91a3ae47a50e8df6cd6880",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "content": "item-2",
+          "leaf": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+          "proof": [
+            {
+              "sibling": "df8bafa2ed4bcd79885aee031cfeec388b04cc81ddea44c73eb5c7f0d57024a9",
+              "side": "right"
+            },
+            {
+              "sibling": "7e276c34756b44b65ba40ff98b4a72a6a56af9e75d649cdad7dc98be9459cb75",
+              "side": "left"
+            },
+            {
+              "sibling": "2d82d40d81a2c46f792624f7cca99c11429bd1807a91a3ae47a50e8df6cd6880",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "content": "item-3",
+          "leaf": "df8bafa2ed4bcd79885aee031cfeec388b04cc81ddea44c73eb5c7f0d57024a9",
+          "proof": [
+            {
+              "sibling": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+              "side": "left"
+            },
+            {
+              "sibling": "7e276c34756b44b65ba40ff98b4a72a6a56af9e75d649cdad7dc98be9459cb75",
+              "side": "left"
+            },
+            {
+              "sibling": "2d82d40d81a2c46f792624f7cca99c11429bd1807a91a3ae47a50e8df6cd6880",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "content": "item-4",
+          "leaf": "4f4582c6dce222ae1ef6ca02ebe4b9c225e96e06290ff8d19fadcbc638338e0b",
+          "proof": [
+            {
+              "sibling": "7e10627e457477a8257463cca1c875cf5deef8f7f74cc2b6054dcb5e9d7dd683",
+              "side": "right"
+            },
+            {
+              "sibling": "bbfb3e6fdbaa7662408c1b4b124a6dbb8e01bf37fa7d7551e8558f7620027ed2",
+              "side": "right"
+            },
+            {
+              "sibling": "3515393063f9aa656a1c96ca29b5daba352454af816cf384e6d467ff01edfa9e",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "content": "item-5",
+          "leaf": "7e10627e457477a8257463cca1c875cf5deef8f7f74cc2b6054dcb5e9d7dd683",
+          "proof": [
+            {
+              "sibling": "4f4582c6dce222ae1ef6ca02ebe4b9c225e96e06290ff8d19fadcbc638338e0b",
+              "side": "left"
+            },
+            {
+              "sibling": "bbfb3e6fdbaa7662408c1b4b124a6dbb8e01bf37fa7d7551e8558f7620027ed2",
+              "side": "right"
+            },
+            {
+              "sibling": "3515393063f9aa656a1c96ca29b5daba352454af816cf384e6d467ff01edfa9e",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "content": "item-6",
+          "leaf": "bbfb3e6fdbaa7662408c1b4b124a6dbb8e01bf37fa7d7551e8558f7620027ed2",
+          "proof": [
+            {
+              "sibling": "cc7b0a30873e9b962c9a4c4e0264a1130d7049ec6c83078396df7589aa161507",
+              "side": "left"
+            },
+            {
+              "sibling": "3515393063f9aa656a1c96ca29b5daba352454af816cf384e6d467ff01edfa9e",
+              "side": "left"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "size": 8,
+      "root": "3c0ba3f65bc32b02aff3f07bff8d7bd5cc5bb915004991e11880a06f65d9fcd4",
+      "note": "even length",
+      "members": [
+        {
+          "index": 0,
+          "content": "item-0",
+          "leaf": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+          "proof": [
+            {
+              "sibling": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+              "side": "right"
+            },
+            {
+              "sibling": "abab2b0421312742919750383a29a5eeba7c4abb8db35591fc3699d0a6e43ea0",
+              "side": "right"
+            },
+            {
+              "sibling": "c8b70410ca3da6ded6278894abae317337687e4279f74b48ac96f1f4cb1d90ef",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "content": "item-1",
+          "leaf": "532d9fab493db401d10e1bdd008f01582f915a28ac07259fc4f6dc1942ecec53",
+          "proof": [
+            {
+              "sibling": "149d9354e123f46c683947f46f8d8fdd7ee416fb17ea521acaf61d8e3c8c3a2d",
+              "side": "left"
+            },
+            {
+              "sibling": "abab2b0421312742919750383a29a5eeba7c4abb8db35591fc3699d0a6e43ea0",
+              "side": "right"
+            },
+            {
+              "sibling": "c8b70410ca3da6ded6278894abae317337687e4279f74b48ac96f1f4cb1d90ef",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "content": "item-2",
+          "leaf": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+          "proof": [
+            {
+              "sibling": "df8bafa2ed4bcd79885aee031cfeec388b04cc81ddea44c73eb5c7f0d57024a9",
+              "side": "right"
+            },
+            {
+              "sibling": "7e276c34756b44b65ba40ff98b4a72a6a56af9e75d649cdad7dc98be9459cb75",
+              "side": "left"
+            },
+            {
+              "sibling": "c8b70410ca3da6ded6278894abae317337687e4279f74b48ac96f1f4cb1d90ef",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "content": "item-3",
+          "leaf": "df8bafa2ed4bcd79885aee031cfeec388b04cc81ddea44c73eb5c7f0d57024a9",
+          "proof": [
+            {
+              "sibling": "54d025472c4451b0165d9d55ace9cb2c79e80516c74311d1c3beb20f09faa278",
+              "side": "left"
+            },
+            {
+              "sibling": "7e276c34756b44b65ba40ff98b4a72a6a56af9e75d649cdad7dc98be9459cb75",
+              "side": "left"
+            },
+            {
+              "sibling": "c8b70410ca3da6ded6278894abae317337687e4279f74b48ac96f1f4cb1d90ef",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "content": "item-4",
+          "leaf": "4f4582c6dce222ae1ef6ca02ebe4b9c225e96e06290ff8d19fadcbc638338e0b",
+          "proof": [
+            {
+              "sibling": "7e10627e457477a8257463cca1c875cf5deef8f7f74cc2b6054dcb5e9d7dd683",
+              "side": "right"
+            },
+            {
+              "sibling": "2327bad99c685de01d5c7acf6a4f61d500eebafc2f523622610be9bdfc532fc9",
+              "side": "right"
+            },
+            {
+              "sibling": "3515393063f9aa656a1c96ca29b5daba352454af816cf384e6d467ff01edfa9e",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "content": "item-5",
+          "leaf": "7e10627e457477a8257463cca1c875cf5deef8f7f74cc2b6054dcb5e9d7dd683",
+          "proof": [
+            {
+              "sibling": "4f4582c6dce222ae1ef6ca02ebe4b9c225e96e06290ff8d19fadcbc638338e0b",
+              "side": "left"
+            },
+            {
+              "sibling": "2327bad99c685de01d5c7acf6a4f61d500eebafc2f523622610be9bdfc532fc9",
+              "side": "right"
+            },
+            {
+              "sibling": "3515393063f9aa656a1c96ca29b5daba352454af816cf384e6d467ff01edfa9e",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "content": "item-6",
+          "leaf": "bbfb3e6fdbaa7662408c1b4b124a6dbb8e01bf37fa7d7551e8558f7620027ed2",
+          "proof": [
+            {
+              "sibling": "b5922dc8a52153164781655f35fa89773d949db446375ac10470e7c4f99f0f06",
+              "side": "right"
+            },
+            {
+              "sibling": "cc7b0a30873e9b962c9a4c4e0264a1130d7049ec6c83078396df7589aa161507",
+              "side": "left"
+            },
+            {
+              "sibling": "3515393063f9aa656a1c96ca29b5daba352454af816cf384e6d467ff01edfa9e",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "content": "item-7",
+          "leaf": "b5922dc8a52153164781655f35fa89773d949db446375ac10470e7c4f99f0f06",
+          "proof": [
+            {
+              "sibling": "bbfb3e6fdbaa7662408c1b4b124a6dbb8e01bf37fa7d7551e8558f7620027ed2",
+              "side": "left"
+            },
+            {
+              "sibling": "cc7b0a30873e9b962c9a4c4e0264a1130d7049ec6c83078396df7589aa161507",
+              "side": "left"
+            },
+            {
+              "sibling": "3515393063f9aa656a1c96ca29b5daba352454af816cf384e6d467ff01edfa9e",
+              "side": "left"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

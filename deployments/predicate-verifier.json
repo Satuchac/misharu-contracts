@@ -1,0 +1,45 @@
+{
+  "what_this_is": "A Noir/UltraHonk verifier for the ZK predicate circuit, live on Base Sepolia. It accepts the same proof `bb verify` accepts offline, and refuses altered public inputs.",
+  "network": "Base Sepolia",
+  "chain_id": 84532,
+  "address": "0x6ea82f8624c448a84a6c91b825d01ac687424749",
+  "deploy_tx": "0x1a1a0380f9fcb54e4a6f1ef04f21430964a7ed22e4afa61b8a42b096e7717a94",
+  "deploy_gas": "3912685",
+  "libraries": {
+    "RelationsLib": "0xee222328c29eca6bbc2478f096b8fdb5ca81f7b2",
+    "ZKTranscriptLib": "0x1ae1aeb1fc473b0e731409489c7bc2b7fe9380e3"
+  },
+  "verification_gas": "3234312",
+  "claim": "coverage >= 80, with the measurement private",
+  "public_inputs": {
+    "commitment": "0x079c855717c12a88f53d14e020577a735df343bfd924f8c8db64b710d7251921",
+    "op": "GTE (0)",
+    "threshold": "80",
+    "result": "true"
+  },
+  "what_is_not_published": "the measurement (87) and the salt \u2014 neither appears in the proof or the inputs",
+  "toolchain": {
+    "noir": "1.0.0-beta.26",
+    "barretenberg": "5.2.0",
+    "scheme": "UltraHonk (ZK)",
+    "solc": "0.8.30"
+  },
+  "trusted_setup": "None that this project owns. UltraHonk uses the universal Aztec Ignition SRS, so there is no circuit-specific ceremony and no trapdoor held here.",
+  "caveat": "The generated verifier required annotating its five assembly blocks as memory-safe to compile (scripts/annotate-verifier-assembly.mjs). Those five blocks have now been reviewed against Solidity's memory-safe rules and hold \u2014 see docs/VERIFIER-ASSEMBLY-AUDIT.md \u2014 but by ONE reader, and that review covers only memory safety, not the verifier's cryptographic correctness. Nothing else about this verifier has been audited either. Testnet only; do not rely on this for value.",
+  "verify_it_yourself": [
+    "curl -sO https://misharu.176-102-64-240.sslip.io/proofs/proof",
+    "curl -sO https://misharu.176-102-64-240.sslip.io/proofs/vk",
+    "curl -sO https://misharu.176-102-64-240.sslip.io/proofs/public_inputs",
+    "bb verify -p ./proof -k ./vk -i ./public_inputs --oracle_hash keccak",
+    "# or on chain, against the deployed verifier:",
+    "cast call 0x6ea82f8624c448a84a6c91b825d01ac687424749 'verify(bytes,bytes32[])(bool)' --rpc-url https://sepolia.base.org --gas 30000000"
+  ],
+  "deployed_at": "2026-08-18T07:35:42.344Z",
+  "artifacts_served_at": "https://misharu.176-102-64-240.sslip.io/proofs/",
+  "assembly_audit": {
+    "document": "docs/VERIFIER-ASSEMBLY-AUDIT.md",
+    "blocks_reviewed": 5,
+    "conclusion": "all five satisfy Solidity's documented memory-safe definition",
+    "limits": "one reader; memory safety only; pinned by digest so a regenerated verifier fails CI rather than inheriting the review"
+  }
+}

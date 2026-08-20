@@ -1,0 +1,49 @@
+{
+  "what_this_is": "A panel agreement that reached a quorum off chain, with that same quorum then enforced on chain by judge_multisig. Two humans and one AI agent, 2 of 3.",
+  "network": "Midnight Preprod",
+  "agreement_id": "agr_4089640b",
+  "manifest_hash": "sha256:183368aa7502d7ef970351f1171c1b4e4b127f9967a4e979c34855cc3dfaa1ba",
+  "evidence_root": "sha256:669f5150a648b618fdb006b6e54401628173b2e6158fc38c27b775d90fafd7c6",
+  "panel": {
+    "quorum": 2,
+    "seats": [
+      {
+        "id": "human:alice",
+        "kind": "human",
+        "midnight_public_key": "e1cb06b2d7d69992a8500c90fc649206a067638bee6d4d8a0ce95748a142917d"
+      },
+      {
+        "id": "human:bob",
+        "kind": "human",
+        "midnight_public_key": "e1db42c803a604b308a4fd91d370787649733363ded46f839a8749b863a12a89"
+      },
+      {
+        "id": "agent:reviewer",
+        "kind": "agent",
+        "midnight_public_key": "a1cd283600c65e68c59db6b7ba934357160bd031b3ee908f45ff2be593f8c28e"
+      }
+    ]
+  },
+  "approved_by": [
+    "agent:reviewer",
+    "human:alice"
+  ],
+  "contract_address": "e4b49f9a0d4057a10078f5f60cf33dad4cc7412eae8a165a11cba1a7da31fae1",
+  "transactions": {
+    "open": "005620ae09f40101d42adaa484971364ee57279fa67be315cbfbc1c0812f56bc6a",
+    "approvals": [
+      {
+        "signer_id": "agent:reviewer",
+        "tx": "00516ab3317b0c17a310dd14c9ccf60001b3612872064a1eaa04e79538fff5ccf0"
+      },
+      {
+        "signer_id": "human:alice",
+        "tx": "0099736e2bb8173d1507c80c75180a142ea3865bb467b864608fb21e30ac57b5ed"
+      }
+    ],
+    "settle": "00aeca2d169ba4726ec61d8971d8d29298cf663056f2bf65632df4917b8f365554"
+  },
+  "what_this_shows": "Two DISTINCT seats approved in two separate transactions and only then could the escrow settle. The seat keys were checked against what the agreement committed to before the contract was opened, so the on-chain quorum is over the same people the signed manifest names.",
+  "what_it_does_not_show": "The other three rails still check one signature each, so a panel settlement there is verifiable but relayed by a single finalizer — detectable, not prevented. And a single-operator run holds every seat secret; in production each seat approves from its own machine.",
+  "read_it_yourself": "node contracts/midnight/deploy/check-multisig.mjs (point it at this address)"
+}

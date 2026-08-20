@@ -1,0 +1,205 @@
+// Misharu — ZK predicates over evidence.
+//
+// Copyright (C) Misharu. SPDX-License-Identifier: Apache-2.0
+//
+// WHAT THIS ADDS TO judge_escrow.compact.
+//
+// The existing ZK rail shields evidence and publishes a commitment to it. That
+// is disclosure control: the parties can show the evidence to a chosen auditor
+// later. But the CHAIN still learns nothing about whether the work was any
+// good, and a reader who is shown nothing has to take the verdict on trust.
+//
+// This contract proves a claim ABOUT the evidence without publishing it:
+//
+//   "test coverage is at least 80%"        → true, and the number stays private
+//   "zero rows were lost in the migration" → true, and the row counts stay private
+//   "p99 latency is under 250ms"           → true, and the measurement stays private
+//   "the invoice is within the PO ceiling" → true, and the invoice stays private
+//
+// The ledger ends up carrying a public, checkable BOOLEAN per claim, computed
+// inside a circuit from a value nobody else ever sees. That is a materially
+// stronger statement than "somebody looked at it and said ACCEPT", and it is
+// the thing a range proof was already doing for one specific number — the
+// amount — generalised to any measurement the parties care to commit.
+//
+// WHY THE THRESHOLD IS PUBLIC AND THE VALUE IS NOT.
+//
+// A predicate whose threshold is also hidden proves nothing to a reader: "some
+// number satisfied some condition" is not a claim. The threshold is the part
+// both parties agreed to in the manifest, so publishing it costs nothing and
+// makes the boolean meaningful. The measurement is the part that leaks a firm's
+// internals, so it stays a witness.
+//
+// WHAT THIS IS STILL NOT.
+//
+// The value is committed by whoever opens the agreement. This proves the
+// committed value satisfies the predicate; it does not prove the value is a
+// true measurement of the world. Binding a number to reality needs an attested
+// source — a signed CI run, an oracle — and that is a separate mechanism which
+// this contract deliberately does not pretend to provide. See docs/ZK.md §4.
+
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+/** The comparisons a claim may use. Closed on purpose: an open set is unauditable. */
+export enum Op {
+  GTE,
+  LTE,
+  EQ,
+  NEQ
+}
+
+export enum Status {
+  OPEN,
+  COMMITTED,
+  PROVEN
+}
+
+// ---------------------------------------------------------------- the ledger
+
+/** The agreement these claims belong to. Always public — without it nothing is checkable. */
+export ledger manifest_hash: Bytes<32>;
+export ledger evidence_root: Bytes<32>;
+export ledger status: Status;
+
+/**
+ * The claim, in the clear: which measurement, which comparison, which threshold.
+ *
+ * All three are public because all three are what the parties agreed. Hiding
+ * the threshold would leave a reader with "a number satisfied a condition",
+ * which is not a claim anyone can act on.
+ */
+export ledger claim_label: Bytes<32>;
+export ledger claim_op: Op;
+export ledger claim_threshold: Uint<64>;
+
+/**
+ * A commitment to the measurement, published BEFORE the proof.
+ *
+ * This is what stops the prover choosing a convenient number after seeing the
+ * threshold. The value is bound at commit time; the proof later shows that the
+ * SAME bound value satisfies the predicate.
+ */
+export ledger value_commitment: Bytes<32>;
+
+/**
+ * The result: public, and the only thing the proof reveals.
+ *
+ * `Maybe` rather than a bare Boolean so that "not yet proven" is distinguishable
+ * from "proven false". Collapsing those two would let a party who dislikes the
+ * answer simply never prove, and have it read as a negative result rather than
+ * as silence.
+ */
+export ledger satisfied: Maybe<Boolean>;
+
+// ------------------------------------------------------------------ witnesses
+
+witness localSecretKey(): Bytes<32>;
+/** The measurement itself. Never disclosed by any circuit in this contract. */
+witness privateValue(): Uint<64>;
+witness privateSalt(): Bytes<32>;
+
+// ------------------------------------------------------------------- circuits
+
+export circuit publicKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "misharu:predicate:pk"), sk]);
+}
+
+/** The commitment scheme, exposed so an off-chain verifier reproduces it exactly. */
+export circuit valueCommitment(value: Uint<64>, salt: Bytes<32>): Bytes<32> {
+  /**
+   * The VALUE must be in the hash. The first draft of this hashed the domain,
+   * the salt and a constant — so the commitment bound nothing, and the check in
+   * `proveClaim` that "the value proved is the value committed" would have
+   * passed for any number at all. The single most important assertion in the
+   * contract would have been decoration.
+   *
+   * `value as Field as Bytes<32>` is the conversion the escrow contract already
+   * uses for the amount commitment.
+   */
+  return persistentHash<Vector<3, Bytes<32>>>([
+    pad(32, "misharu:predicate:value"),
+    value as Field as Bytes<32>,
+    salt
+  ]);
+}
+
+/**
+ * Open a claim: fix what is being measured, how, and against what.
+ *
+ * Nothing about the measurement is supplied here. The claim exists before the
+ * number does, which is what makes the later proof meaningful rather than a
+ * post-hoc rationalisation.
+ */
+export circuit openClaim(
+  manifestHash: Bytes<32>,
+  evidenceRoot: Bytes<32>,
+  label: Bytes<32>,
+  op: Op,
+  threshold: Uint<64>
+): [] {
+  assert(status == Status.OPEN, "this claim is already open");
+
+  manifest_hash = disclose(manifestHash);
+  evidence_root = disclose(evidenceRoot);
+  claim_label = disclose(label);
+  claim_op = disclose(op);
+  claim_threshold = disclose(threshold);
+  satisfied = none<Boolean>();
+  status = Status.COMMITTED;
+}
+
+/**
+ * Commit to the measurement without revealing it.
+ *
+ * Separate from `prove` on purpose. Committing first and proving later means
+ * the number is fixed before the prover knows whether it will pass — with one
+ * combined circuit, a prover could try values until one satisfied the predicate
+ * and publish only the successful attempt.
+ */
+export circuit commitValue(): [] {
+  assert(status == Status.COMMITTED, "the claim is not accepting a commitment");
+  const value = privateValue();
+  const salt = privateSalt();
+  value_commitment = disclose(valueCommitment(value, salt));
+}
+
+/**
+ * Prove the committed measurement satisfies the claim.
+ *
+ * The only thing that reaches the ledger is a boolean. The comparison happens
+ * inside the circuit over a witness, so a verifier learns THAT the condition
+ * holds and never learns by how much — which matters, because "coverage is 81%"
+ * and "coverage is 99%" are different competitive disclosures and both should
+ * be able to satisfy "at least 80%" identically.
+ */
+export circuit proveClaim(): [] {
+  assert(status == Status.COMMITTED, "nothing committed to prove");
+
+  const value = privateValue();
+  const salt = privateSalt();
+
+  /**
+   * The value proved must be the value committed. Without this the proof would
+   * be about any number the prover liked at proving time, and the commitment
+   * would be decoration.
+   */
+  assert(
+    valueCommitment(value, salt) == value_commitment,
+    "the value proved is not the value committed"
+  );
+
+  const holds =
+    claim_op == Op.GTE ? (value >= claim_threshold) :
+    claim_op == Op.LTE ? (value <= claim_threshold) :
+    claim_op == Op.EQ  ? (value == claim_threshold) :
+                         (value != claim_threshold);
+
+  /**
+   * Disclosing the RESULT, never the value. This single `disclose` is the whole
+   * contract: everything else exists to make this boolean mean something.
+   */
+  satisfied = some<Boolean>(disclose(holds));
+  status = Status.PROVEN;
+}

@@ -1,0 +1,45 @@
+{
+  "what_this_is": "A Noir/UltraHonk verifier for the Merkle-inclusion circuit, live on Base Sepolia. It accepts the same proof `bb verify` accepts offline, and refuses the proof when presented against any other root.",
+  "network": "Base Sepolia",
+  "chain_id": 84532,
+  "address": "0x0f127e9fc9cda6608d14085cb4f4f7f94cc290e2",
+  "deploy_tx": "0x277e7e240a8ce617b48cffd35b7dde652c6e62eb71ea945650c2a4bc62081f75",
+  "deploy_gas": "3968499",
+  "libraries": {
+    "RelationsLib": "0x8cfaaaec7e1d3398c4acf78142586e7b6182d876",
+    "ZKTranscriptLib": "0xa59aab8add77ddceacb53e715f238f737e3216f0"
+  },
+  "verification_gas": "3645899",
+  "claim": "I know the CONTENT of an item in the evidence tree committed by this root. Which item and where it sits are both private — that is what this adds over a plain disclosure package, where the item and its index are shown to the recipient.",
+  "why_content_and_not_the_leaf": "An earlier version took the leaf as an opaque 32 bytes, and that was unsound for the claim it made. A Merkle proof necessarily hands its recipient the sibling hashes along the path, and at level 0 a sibling IS the neighbouring item's leaf. In the real NDA case two of four items were disclosed and two withheld, and the two disclosed proofs between them hand over the leaves of BOTH withheld items along with their remaining path. Against a leaf-opaque circuit that is a complete valid witness, so anyone handed a disclosure could prove membership of exactly the parts they were refused. The circuit now hashes the content itself: recovering it from a leaf is a SHA-256 preimage search. The attack is assembled from the real package in packages/receipt/src/disclosure-forgery.test.ts and refused in circuits/merkle/src/binding.nr.",
+  "public_inputs": {
+    "evidence_root": "0xf3c1bab8083c33b451e11bac74a0b593155b39cedb036fe7af5bc74eb843a03b",
+    "encoding": "32 field elements, one per root byte — Noir passes [u8; 32] that way"
+  },
+  "what_is_not_published": "the item's content, the leaf derived from it, the sibling hashes, and the item's index. None appears in the proof or the inputs.",
+  "corpus": "circuits/vectors/merkle-vectors.json — 7 trees, 30 inclusion cases. The same file is checked against the TypeScript implementation (packages/receipt/src/merkle-corpus.test.ts, 38 tests) and against the circuit (circuits/merkle/src/corpus.nr, 40 generated tests). Two implementations, one third thing.",
+  "scheme": {
+    "leaf": "sha256(0x00 || content)",
+    "node": "sha256(0x01 || left || right)",
+    "odd_node": "promoted unchanged, which is why some members have shorter proofs",
+    "why_sha256": "Poseidon is far cheaper in-circuit and is the obvious choice for a NEW tree. It is the wrong choice here: our receipts already commit SHA-256 roots, so a Poseidon circuit would prove membership of a different tree than the one published. This circuit is 65,536 gates against the predicate circuit's 4,096, and that is what the interoperability costs."
+  },
+  "proven_against": "A real case: midnight-nda-bound-deliverable-321b0f. The public input is the evidence root that case published, and the witness is built from the disclosure package a discloser would actually hand over (scripts/gen-merkle-prover.ts), not from a fixture shaped like one.",
+  "bounds": "This instance verifies paths of length 2 — a four-item bundle — and items of up to 256 canonical bytes. Both are compile-time in Noir. Depth 2 was chosen to match real data: the shielded cases carry bundles of 1, 1, 4 and 5 items. The four real disclosed items canonicalise to 109, 119, 152 and 158 bytes. A tree of another shape or a longer item needs its own instance — a deployment fact, not a limit on the scheme. Odd trees are handled, since a promoted node contributes no sibling.",
+  "toolchain": {
+    "noir": "1.0.0-beta.26",
+    "barretenberg": "5.2.0",
+    "scheme": "UltraHonk (ZK)",
+    "solc": "0.8.30",
+    "sha256": "noir-lang/sha256 v0.3.0 — sha256 left the Noir stdlib after beta.x"
+  },
+  "trusted_setup": "None that this project owns. UltraHonk uses the universal Aztec Ignition SRS, so there is no circuit-specific ceremony and no trapdoor held here.",
+  "caveat": "The generated verifier required annotating its five assembly blocks as memory-safe to compile (scripts/annotate-verifier-assembly.mjs). Those five blocks are byte-identical to the predicate verifier's, so docs/VERIFIER-ASSEMBLY-AUDIT.md covers them unchanged — but that annotation is an assertion to the compiler which has NOT been audited. Testnet only; do not rely on this for value.",
+  "privacy_caveat": "The tests show the leaf and siblings are not present in the public inputs in the clear. That rules out a circuit publishing its own witness; it is NOT a proof of zero knowledge, which rests on Honk.",
+  "verify_it_yourself": [
+    "cast call 0x0f127e9fc9cda6608d14085cb4f4f7f94cc290e2 \"verify(bytes,bytes32[])(bool)\" $(xxd -p -c 999999 circuits/merkle/artifacts/proof | sed 's/^/0x/') \"[0x00000000000000000000000000000000000000000000000000000000000000f3,0x00000000000000000000000000000000000000000000000000000000000000c1,0x00000000000000000000000000000000000000000000000000000000000000ba,0x00000000000000000000000000000000000000000000000000000000000000b8,0x0000000000000000000000000000000000000000000000000000000000000008,0x000000000000000000000000000000000000000000000000000000000000003c,0x0000000000000000000000000000000000000000000000000000000000000033,0x00000000000000000000000000000000000000000000000000000000000000b4,0x0000000000000000000000000000000000000000000000000000000000000051,0x00000000000000000000000000000000000000000000000000000000000000e1,0x000000000000000000000000000000000000000000000000000000000000001b,0x00000000000000000000000000000000000000000000000000000000000000ac,0x0000000000000000000000000000000000000000000000000000000000000074,0x00000000000000000000000000000000000000000000000000000000000000a0,0x00000000000000000000000000000000000000000000000000000000000000b5,0x0000000000000000000000000000000000000000000000000000000000000093,0x0000000000000000000000000000000000000000000000000000000000000015,0x000000000000000000000000000000000000000000000000000000000000005b,0x0000000000000000000000000000000000000000000000000000000000000039,0x00000000000000000000000000000000000000000000000000000000000000ce,0x00000000000000000000000000000000000000000000000000000000000000db,0x0000000000000000000000000000000000000000000000000000000000000003,0x000000000000000000000000000000000000000000000000000000000000006f,0x00000000000000000000000000000000000000000000000000000000000000e7,0x00000000000000000000000000000000000000000000000000000000000000af,0x000000000000000000000000000000000000000000000000000000000000005b,0x00000000000000000000000000000000000000000000000000000000000000c7,0x000000000000000000000000000000000000000000000000000000000000004e,0x00000000000000000000000000000000000000000000000000000000000000b8,0x0000000000000000000000000000000000000000000000000000000000000043,0x00000000000000000000000000000000000000000000000000000000000000a0,0x000000000000000000000000000000000000000000000000000000000000003b]\" --rpc-url https://sepolia.base.org",
+    "bb verify -p circuits/merkle/artifacts/proof -k circuits/merkle/artifacts/vk -i circuits/merkle/artifacts/public_inputs --oracle_hash keccak",
+    "cd circuits/merkle && nargo test    # 42: 40 corpus cases + 2 generated from the real package"
+  ],
+  "deployed_at": "2026-08-19T18:00:10.454Z"
+}

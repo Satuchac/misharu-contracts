@@ -1,0 +1,33 @@
+{
+  "what_this_is": "The shared truth table for every predicate this project proves, in any language, on any chain.",
+  "why": "There is no Compact-to-Noir bridge, so each predicate is implemented twice: once in Compact for Midnight, once in Noir for EVM and Solana. Two independent implementations of the same rule silently diverging is far more probable than any cryptographic break, and far harder to notice — a proof still verifies, it just proves something slightly different from what the other chain proved. These vectors are run against BOTH implementations in CI.",
+  "how_to_read": "Each vector is (op, value, threshold) -> satisfied. The value is private in every case; the op and threshold are public.",
+  "vectors": [
+    { "id": "gte-above",        "op": "GTE",  "value": "87",    "threshold": "80",    "satisfied": true,  "note": "the ordinary case" },
+    { "id": "gte-equal",        "op": "GTE",  "value": "80",    "threshold": "80",    "satisfied": true,  "note": "boundary: at the threshold satisfies GTE" },
+    { "id": "gte-below",        "op": "GTE",  "value": "79",    "threshold": "80",    "satisfied": false, "note": "boundary: one under" },
+    { "id": "gte-far-above",    "op": "GTE",  "value": "99",    "threshold": "80",    "satisfied": true,  "note": "must be indistinguishable on chain from gte-above" },
+    { "id": "gte-zero-value",   "op": "GTE",  "value": "0",     "threshold": "0",     "satisfied": true,  "note": "zero is a real measurement, not an absent one" },
+    { "id": "gte-zero-thresh",  "op": "GTE",  "value": "1",     "threshold": "0",     "satisfied": true,  "note": "a threshold of zero is trivially met and must not error" },
+
+    { "id": "lte-under",        "op": "LTE",  "value": "214",   "threshold": "250",   "satisfied": true,  "note": "latency under budget" },
+    { "id": "lte-equal",        "op": "LTE",  "value": "250",   "threshold": "250",   "satisfied": true,  "note": "boundary: at the threshold satisfies LTE" },
+    { "id": "lte-over",         "op": "LTE",  "value": "251",   "threshold": "250",   "satisfied": false, "note": "boundary: one over" },
+
+    { "id": "eq-match",         "op": "EQ",   "value": "0",     "threshold": "0",     "satisfied": true,  "note": "zero rows lost" },
+    { "id": "eq-mismatch",      "op": "EQ",   "value": "1",     "threshold": "0",     "satisfied": false, "note": "one row lost is not zero" },
+
+    { "id": "neq-differs",      "op": "NEQ",  "value": "3",     "threshold": "0",     "satisfied": true,  "note": "at least one incident response" },
+    { "id": "neq-same",         "op": "NEQ",  "value": "0",     "threshold": "0",     "satisfied": false, "note": "the mirror of eq-match" },
+
+    { "id": "large-value",      "op": "GTE",  "value": "184000", "threshold": "180000", "satisfied": true, "note": "invoice-sized numbers, not just percentages" },
+    { "id": "cap-exceeded",     "op": "LTE",  "value": "512000", "threshold": "500000", "satisfied": false, "note": "the sealed-bid refusal, as a predicate" },
+    { "id": "u64-upper",        "op": "LTE",  "value": "18446744073709551615", "threshold": "18446744073709551615", "satisfied": true, "note": "the top of Uint<64>: an implementation that overflows here fails silently" }
+  ],
+  "merkle_vectors": {
+    "what_this_is": "Inclusion proofs over the same committed set, so both implementations agree on leaf hashing, node hashing and odd-length trees.",
+    "leaf_scheme": "sha256(0x00 || JCS({id, kind, content}))",
+    "node_scheme": "sha256(0x01 || left || right); an odd node at a level is promoted unchanged",
+    "note": "Odd-length trees are listed explicitly because a naive implementation drops the promoted node and still produces a plausible-looking root."
+  }
+}

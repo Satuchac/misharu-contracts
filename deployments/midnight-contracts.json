@@ -1,0 +1,68 @@
+{
+  "what_this_is": "First on-chain deployments of the ZK predicate contract and the many-agreement registry. Both had passed their local simulators; this is the first time either produced a real zero-knowledge proof.",
+  "network": "Midnight Preprod",
+  "deployed_at": "2026-08-19T09:30:38.535Z",
+  "run": "d96fd4",
+  "predicates": {
+    "contract_address": "ded9816a1c924e2676a59904a8faac609d9f74d7dc4f1da2a117ffb53c0c354b",
+    "transactions": {
+      "open_claim": "00e3cace940bfe32330b6795d8aa5e3d7e6220a5d50604dc77974abde314cd4702",
+      "commit_value": "00a6a89a5dcdcdcb7dc88337a782fd20234ceccf1d00143f5ae4230f19489786dc",
+      "prove_claim": "00fa3f69c11d540ddb2b9c279d1bfc57e74d9dca7f3e9f8e3d1e9387f970166eab"
+    },
+    "claim": {
+      "label": "coverage",
+      "op": "GTE",
+      "threshold": "80"
+    },
+    "satisfied": true,
+    "value_commitment": "2d6d0a25770b5b9622b1352f59bc2149338ad6d49ff9feafa2d2a4a8864d18b0",
+    "what_is_public": "the label, the comparison, the threshold, a commitment to the measurement, and the result",
+    "what_is_not": "the measurement itself, which never left the prover",
+    "reproduce_the_commitment": "pureCircuits.valueCommitment(value, salt) in contracts/midnight/escrow/src/managed/judge_predicates"
+  },
+  "registry": {
+    "contract_address": "6d0647c018577f7d701ecbbb736b9918be0a0039cd54256333679c2894022c54",
+    "agreements": [
+      {
+        "name": "alpha",
+        "key": "616c7068612d6439366664340000000000000000000000000000000000000000",
+        "outcome": "ACCEPT",
+        "transactions": {
+          "open": "00bf89acc4e7ccdb633e8d8ff1235d9d3fab8ddf4603ab2b90b06a7954fb944765",
+          "fund": "00a015e19b5b79047b780c94dcf4b1a555ed4747de7063905f5c2c8fedbd6f2831",
+          "settle": "00627611601de8b1e3c37691b29fa48c61321de976c2141ee7a6244aa4c2489e98"
+        }
+      },
+      {
+        "name": "beta",
+        "key": "626574612d643936666434000000000000000000000000000000000000000000",
+        "outcome": "REJECT",
+        "transactions": {
+          "open": "00cf6a90279eb912f4778915dab0f405bd675b4070684f7d904247078500025a1d",
+          "fund": "00a293b1ff093ef241bfdeb013effc0513fba24cd2a2e24711cd3964b5226bc684",
+          "settle": "007f4116d1670bd112f81bd6f24c9993eaddb38685aeb94017692b0de12c4b15f0"
+        }
+      }
+    ],
+    "opened_count": "2",
+    "settled_count": "2",
+    "reuse_refused_on_chain": "Unexpected error executing scoped transaction '<unnamed>': Error: failed assert: an agreement with this manifest hash already exists",
+    "what_this_shows": "Two agreements settled inside ONE deployment, and a third attempt to reuse an existing manifest hash was refused by the circuit. The previous design needed one deployment per agreement."
+  },
+  "multisig": {
+    "contract_address": "bfa7b78521cefa37c1ebdc811a316487854481693ab81507f1efb8eba9c57c1f",
+    "threshold": "2-of-3",
+    "transactions": {
+      "open": "000af9a99584f99f34022ed2f3b7d1fad2d6f609bd982c1714ff623e3643550fbb",
+      "approvals": [
+        "00e58eecc988987c57af6ebc9bab43016dba3ccfe7ea8fc6b29856ed2152d92419",
+        "00b80fbc7269731e4815f93efa9146f4b55280029bda146f1fb60bc2b9adff720c"
+      ],
+      "settle": "0002a89493eb43fe2ff1b891d3e1d7160b1b8190801985845a169450c1b805e7cf"
+    },
+    "approvals_recorded": "2",
+    "what_this_shows": "Two distinct finalizers approved in separate transactions and only then could the escrow settle. One key holder cannot settle alone on this rail — which the other three rails still permit."
+  },
+  "caveat": "Testnet. tNIGHT has no value. Local simulation proves circuit logic; this proves proofs verify on a real chain. Neither proves the contracts are free of defects — see docs/THREAT-MODEL.md."
+}

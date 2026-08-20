@@ -1,6 +1,6 @@
 {
-  "$comment": "Deployment registry \u2014 source of truth for the admin overview (pnpm admin). Update via scripts/deploy-testnet.sh output.",
-  "updated": "2026-07-28",
+  "$comment": "Deployment registry — source of truth for the admin overview (pnpm admin). Update via scripts/deploy-testnet.sh output.",
+  "updated": "2026-08-17",
   "deployer": "0x252298725bdec8AaBB1504f8aC239b0CbC2745C4",
   "evm": [
     {
@@ -9,7 +9,7 @@
       "chainId": 31337,
       "rpc": "http://127.0.0.1:18545",
       "status": "rehearsal-verified",
-      "note": "Full deploy + create/fund lifecycle verified 2026-07-28; ephemeral \u2014 addresses not stable",
+      "note": "Full deploy + create/fund lifecycle verified 2026-07-28; ephemeral — addresses not stable",
       "contracts": null
     },
     {
@@ -35,9 +35,14 @@
         "asset": "testnet ETH",
         "address": "0x252298725bdec8AaBB1504f8aC239b0CbC2745C4"
       },
-      "note": "v1.1 (security fixes: committed challenge-window floor, no fee on full refund). Superseded: 0x89c5EA82\u202610D0D9",
+      "note": "v1.1 (security fixes: committed challenge-window floor, no fee on full refund). Superseded: 0x89c5EA82…10D0D9",
       "contract_version": "v1.1",
-      "funding_vault_note": "v2 adds claimForJudge (third-party judges paid directly) and an operator-settable platform fee: capped at 20% immutably, raises timelocked 7 days, and every deposit locks the rate in force when it was funded. Verified on-chain 12/12 \u2014 deployments/fee-split-verification.json"
+      "funding_vault_note": "v2 adds claimForJudge (third-party judges paid directly) and an operator-settable platform fee: capped at 20% immutably, raises timelocked 7 days, and every deposit locks the rate in force when it was funded. Verified on-chain 12/12 — deployments/fee-split-verification.json",
+      "rpc_fallbacks": [
+        "https://base-sepolia-rpc.publicnode.com",
+        "https://base-sepolia.drpc.org",
+        "https://base-sepolia.gateway.tenderly.co"
+      ]
     },
     {
       "id": "eth-sepolia",
@@ -65,24 +70,33 @@
     },
     {
       "id": "base-sepolia-demo",
-      "name": "Base Sepolia (demo \u00b7 TestUSDC)",
+      "name": "Base Sepolia (demo · TestUSDC)",
       "chainId": 84532,
       "rpc": "https://sepolia.base.org",
       "status": "deployed",
-      "note": "v1.1 demo instance with anyone-mintable TestUSDC (testnets only). Superseded: 0x68892C57\u202669c04",
+      "note": "v1.1 demo instance with anyone-mintable TestUSDC (testnets only). Superseded: 0x68892C57…69c04",
       "contracts": {
         "escrow": "0x386E4A8caccad480FEa8D4611F9b365879cba218",
         "registry": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
-        "token": "0x8868cD5fd33C0bD65a7e83124730c7C0898c5c07"
+        "token": "0x8868cD5fd33C0bD65a7e83124730c7C0898c5c07",
+        "token_symbol": "tUSDC",
+        "token_decimals": 6,
+        "token_verified_on_chain": "decimals()=6, symbol()=tUSDC via eth_call, 2026-08-14",
+        "token_caveat": "Anyone-mintable test token. It has no value and no issuer, and is deliberately NOT in the accepted asset registry — that list is for assets a payment can be denominated in. This one exists so the funding path can be exercised end to end without begging a faucet."
       },
       "deployed_at": "2026-07-28",
       "explorer": "https://sepolia.basescan.org/address/0x386E4A8caccad480FEa8D4611F9b365879cba218",
       "contract_version": "v1.1",
-      "funding_vault": "0xe602CCc75a835f313AB6351a6622218E17Be6126"
+      "funding_vault": "0xe602CCc75a835f313AB6351a6622218E17Be6126",
+      "rpc_fallbacks": [
+        "https://base-sepolia-rpc.publicnode.com",
+        "https://base-sepolia.drpc.org",
+        "https://base-sepolia.gateway.tenderly.co"
+      ]
     },
     {
       "id": "eth-sepolia-demo",
-      "name": "Ethereum Sepolia (demo \u00b7 TestUSDC)",
+      "name": "Ethereum Sepolia (demo · TestUSDC)",
       "chainId": 11155111,
       "rpc": "https://ethereum-sepolia-rpc.publicnode.com",
       "status": "deployed",
@@ -100,9 +114,9 @@
     {
       "id": "cardano-preprod",
       "name": "Cardano Preprod",
-      "status": "LIVE \u2014 all four redeemers executed on-chain, 12/12 edge cases rejected, and judgements settled end-to-end with the escrow datum bound to the bundle",
+      "status": "LIVE — all four redeemers executed on-chain, 12/12 edge cases rejected, and judgements settled end-to-end with the escrow datum bound to the bundle",
       "path": "Aiken Plutus V3 validator, same lifecycle as JudgeEscrowV1: FinalizeAccept/FinalizeReject (finalizer-signed, after the challenge window, before recovery), Expire (unblockable refund by anyone), MutualCancel. Timing proved by the tx validity interval; payouts checked against datum credentials.",
-      "grant": "Pyth grant M3 vehicle \u2014 decision tracked in issue #2",
+      "grant": "Pyth grant M3 vehicle — decision tracked in issue #2",
       "registration": "docs/integrations/masumi-registration.md",
       "funding": {
         "asset": "test-ADA (Preprod)",
@@ -119,7 +133,7 @@
       "explorer": "https://preprod.cardanoscan.io/address/addr_test1wqd64yljcz2qay89xucwgnh5pmjpw04e3qa44qtjra8hwqgtv5j4z",
       "live": {
         "locked_lovelace": "5000000",
-        "locked_ada": 5.0,
+        "locked_ada": 5,
         "lock_tx": "4d41b20a7d7309c5b8211a6ceb1b9548028b44c18fd339e0f261d55d1595840d",
         "utxos": 1,
         "inline_datum": true
@@ -133,14 +147,14 @@
           "tx": "aa5e4b5968513702d9244297d94b5c10672032aeff86914a3573e3b285873a43",
           "note": "Finalizer-signed ACCEPT inside the window; provider paid."
         },
-        "edge_cases": "deployments/cardano-edge-cases.json \u2014 12/12 rejected by script evaluation, across all four redeemers",
+        "edge_cases": "deployments/cardano-edge-cases.json — 12/12 rejected by script evaluation, across all four redeemers",
         "mutual_cancel": {
           "tx": "ced2f5d6e8d58abd5ab27e1c345513e2b9f363715073b0c896b4a466e453e4e8",
-          "note": "Buyer and provider are DIFFERENT keys and both signed; the agreement was unwound by consent and the buyer refunded. With one key playing both roles this redeemer cannot be tested \u2014 a single signature would satisfy both checks."
+          "note": "Buyer and provider are DIFFERENT keys and both signed; the agreement was unwound by consent and the buyer refunded. With one key playing both roles this redeemer cannot be tested — a single signature would satisfy both checks."
         },
         "finalize_reject": {
           "tx": "128fb58f11071feb8e4882e7825120d08d029420e64b166dcda8296c6dae0571",
-          "note": "Finalizer-signed REJECT inside the window; the buyer was refunded while the provider \u2014 a different key \u2014 received nothing. The mirror of finalize_accept, and the path that proves a verdict can move funds in either direction."
+          "note": "Finalizer-signed REJECT inside the window; the buyer was refunded while the provider — a different key — received nothing. The mirror of finalize_accept, and the path that proves a verdict can move funds in either direction."
         }
       },
       "settled_judgements": {
@@ -154,14 +168,14 @@
           "tx": "0201ef960020102fdc1d52be03d5462f759bfe0c6b12b4fb8040686b95117296",
           "note": "Buyer refunded."
         },
-        "binding": "Each lock datum carries the bundle's manifest_hash and evidence_root. `pnpm cardano:verify-binding` reads the datum back from Koios and compares \u2014 the escrow and the judgement governing it are provably the same agreement, not two records filed together."
+        "binding": "Each lock datum carries the bundle's manifest_hash and evidence_root. `pnpm cardano:verify-binding` reads the datum back from Koios and compares — the escrow and the judgement governing it are provably the same agreement, not two records filed together."
       }
     },
     {
       "id": "solana-devnet",
       "name": "Solana Devnet",
-      "status": "LIVE \u2014 program deployed",
-      "path": "Native Rust program (no Anchor). Job account holds state and lamports; same invariants as JudgeEscrowV1 \u2014 settle at most once, provider-only submit, finalizer-only verdicts, committed challenge-window floor enforced on-chain, and ExpireAndRefund with no signature check so the recovery path can never be blocked.",
+      "status": "LIVE — program deployed",
+      "path": "Native Rust program (no Anchor). Job account holds state and lamports; same invariants as JudgeEscrowV1 — settle at most once, provider-only submit, finalizer-only verdicts, committed challenge-window floor enforced on-chain, and ExpireAndRefund with no signature check so the recovery path can never be blocked.",
       "deployer": "2ji568ypD94GGsFqBpXxSCq4gWPN57ThxA4SBJh6AMDW",
       "funding": {
         "asset": "devnet SOL",
@@ -184,8 +198,8 @@
     {
       "id": "sui-testnet",
       "name": "Sui Testnet",
-      "status": "LIVE \u2014 republished after fixing a confirmed authority bug; settles end-to-end",
-      "path": "Move package: shared Job object holding Balance<SUI>. Same invariants as JudgeEscrowV1 \u2014 settle at most once, only the provider submits, only the declared finalizer decides, committed challenge-window floor enforced on-chain, expire_and_refund callable by anyone after the recovery deadline.",
+      "status": "LIVE — republished after fixing a confirmed authority bug; settles end-to-end",
+      "path": "Move package: shared Job object holding Balance<SUI>. Same invariants as JudgeEscrowV1 — settle at most once, only the provider submits, only the declared finalizer decides, committed challenge-window floor enforced on-chain, expire_and_refund callable by anyone after the recovery deadline.",
       "deployer": "0x8e0decbad7a1faad77e9207d51cf30d78873e5a6059dd90e7cac1e2199d6e155",
       "funding": {
         "asset": "testnet SUI",
@@ -206,6 +220,66 @@
           "reason": "mutual_cancel authorised the buyer alone, letting a buyer reclaim the whole escrow after the provider delivered. Confirmed on testnet, then fixed. Do not use."
         }
       ]
+    },
+    {
+      "id": "midnight-preprod",
+      "name": "Midnight Preprod (ZK)",
+      "status": "LIVE — fifteen cases settled on preprod with real ZK proofs, each on its own contract, and seven of those judgements were then settled cross-chain on Cardano preprod, Solana devnet and Base Sepolia. Two cases commit multi-item Merkle evidence roots, so a party can disclose part of the evidence to one recipient and have it verified against the chain. The work, the amount and the parties are witnesses to the circuits and reach no ledger.",
+      "path": "Same lifecycle as every other rail — open, fund, settle — with the work, the amount and the parties as WITNESSES rather than ledger state. The manifest hash, the evidence root, the verdict and the parties' disclosure choice are always public; a shielded verdict could only be acted on by whoever wrote it. A second variant adds a public cap and proves inside the circuit that the shielded amount is under it, so a payment can be shown to be within a mandate without being shown.",
+      "variants": [
+        {
+          "id": "baseline",
+          "source": "contracts/midnight/escrow/src/judge_escrow.compact",
+          "circuits": [
+            "open",
+            "fund",
+            "settle"
+          ],
+          "proves": "commitments only — a shielded amount is opaque rather than bounded"
+        },
+        {
+          "id": "bounded",
+          "source": "contracts/midnight/escrow/src/judge_escrow_bounded.compact",
+          "circuits": [
+            "open",
+            "fund",
+            "settle"
+          ],
+          "proves": "additionally: the shielded amount is at or under a cap committed before funding, proven in the circuit without revealing it",
+          "evidence": "the fund circuit's ZKIR grows 551 -> 791 bytes against the baseline, which is the constraint compiled in rather than written down"
+        }
+      ],
+      "funding": {
+        "asset": "tNIGHT (Midnight Preprod)",
+        "address": "mn_addr_preprod1jp0hph34t6ms8yl3crffkwwd8m70cznxkwxmh84jhv7ufv57d8zqjwajng",
+        "balance": "1000000000",
+        "faucet": "https://midnight-tmnight-preprod.nethermind.dev/"
+      },
+      "compiler": "compact 0.31.1",
+      "caveat": [
+        "Shielding hides the evidence from the CHAIN, not from the JUDGE — a judge must read the work to decide it, so whoever operates that judge reads it too. Hiding it from them needs an attested enclave and is separate work.",
+        "ONE DEPLOYED CONTRACT HOLDS ONE ESCROW. `open` asserts the initial status, so a contract carries a single agreement for life and every case needs its own deployment. That is the design working — an escrow that could be reopened could be reused — but it does not amortise. A contract keyed by a map of manifest hashes is the obvious next version and is not built.",
+        "The dust wallet re-syncs ~1.43M indices (about 70 minutes) on every PROCESS start. FluentWalletBuilder exposes no serialize or restore, so the suite runs every case in one session; a process per case would be nine syncs.",
+        "`pnpm verify` does NOT accept these bundles. They settle in the circuits and carry no signed provisional envelope, so the offline signature verifier has nothing to check and records them as cannot_verify with that reason. They are backed by re-reading the ledger instead: `npx tsx contracts/midnight/deploy/read-ledger-check.mjs`."
+      ],
+      "docs": "docs/ZK-SCENARIOS.md",
+      "contracts": {
+        "baseline_reference": "ac4276215116101a95336417eb0ce5ac222cc420aeeab2f88c6089a7687ee96d",
+        "bounded_reference": "59a2c4282780885eb04521815b306731d6719eff8d88006b5f8d9803a9f11b9d"
+      },
+      "live": {
+        "cases_settled": 15,
+        "cross_chain_settlements": 7,
+        "settlement_rails": [
+          "Cardano Preprod",
+          "Solana Devnet",
+          "Base Sepolia"
+        ],
+        "first_deployed": "2026-08-16",
+        "verify": "npx tsx contracts/midnight/deploy/read-ledger-check.mjs",
+        "selective_disclosure": "npx tsx scripts/disclose.ts --verify <package.json>"
+      },
+      "contracts_note": "Reference deployments recorded for the registry. Each CASE deploys its own contract, because one contract holds one escrow — see the caveats."
     }
   ]
 }

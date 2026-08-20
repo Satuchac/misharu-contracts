@@ -1,0 +1,177 @@
+// Misharu — many agreements, one contract.
+//
+// Copyright (C) Misharu. SPDX-License-Identifier: Apache-2.0
+//
+// WHY THIS EXISTS.
+//
+// `judge_escrow.compact` asserts the initial status inside `open()`, so a
+// deployed contract carries exactly ONE agreement for its whole life. That is
+// the design working — an escrow that could be reopened could be reused, and a
+// reusable escrow is one whose history can be overwritten — but it does not
+// amortise. Nine cases on preprod meant nine deployments, each with its own
+// proof, its own transaction and its own wait.
+//
+// This contract keeps the same guarantee and pays for it once. Agreements live
+// in a Map keyed by manifest hash: an entry may be created once, transitions
+// forward only, and no key is ever removed or rewritten. Reuse is prevented by
+// the key being taken, not by the contract being spent.
+//
+// WHY THE MANIFEST HASH IS THE KEY.
+//
+// It is the only identifier that already means something. It commits the terms
+// before any work exists, both parties signed it, and it is what every other
+// rail binds its escrow to — so an agreement is discoverable across chains
+// without a lookup table anyone has to trust. A sequential id would need one.
+//
+// A consequence worth stating: two agreements with identical terms, parties and
+// nonce collide, and the second is refused. That is correct. Identical terms
+// with no distinguishing nonce ARE the same agreement, and creating it twice is
+// the double-spend this key prevents.
+//
+// WHAT IS PUBLIC HERE.
+//
+// The same fields as the single-agreement contract: manifest hash, evidence
+// root, verdict, and the disclosure policy. The amount, the parties and the
+// evidence remain witnesses. Putting many agreements in one contract does not
+// widen what any of them reveals — it only removes the need to deploy each time.
+
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+export enum Verdict {
+  PENDING,
+  ACCEPT,
+  REJECT,
+  INDETERMINATE
+}
+
+export enum Status {
+  NONE,
+  OPEN,
+  FUNDED,
+  SETTLED
+}
+
+/**
+ * One agreement's public record.
+ *
+ * `status` starting at NONE rather than OPEN matters: a Map returns a default
+ * for an absent key in some readings, and a default that looks like a live
+ * agreement is how a contract ends up settling something nobody opened.
+ */
+export struct Agreement {
+  evidence_root: Bytes<32>,
+  finalizer: Bytes<32>,
+  verdict: Verdict,
+  status: Status,
+  disclose_amount: Boolean,
+  disclose_parties: Boolean,
+  disclose_evidence: Boolean,
+  amount_commitment: Bytes<32>
+}
+
+export ledger agreements: Map<Bytes<32>, Agreement>;
+
+/** How many agreements this contract has ever opened. Monotonic; never decremented. */
+export ledger opened_count: Counter;
+export ledger settled_count: Counter;
+
+witness localSecretKey(): Bytes<32>;
+witness privateAmount(): Uint<64>;
+witness privateSalt(): Bytes<32>;
+
+export circuit publicKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "misharu:pk:"), sk]);
+}
+
+export circuit commitAmount(value: Uint<64>, salt: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>(
+    [pad(32, "misharu:amount:"), value as Field as Bytes<32>, salt]);
+}
+
+/**
+ * Open an agreement under its manifest hash.
+ *
+ * The key must be free. This single assertion is what replaces "one contract
+ * per escrow": an agreement cannot be opened twice, so it cannot be reused,
+ * even though the contract itself is long-lived.
+ */
+export circuit open(
+  manifestHash: Bytes<32>,
+  evidenceRoot: Bytes<32>,
+  finalizerKey: Bytes<32>,
+  discloseAmount: Boolean,
+  discloseParties: Boolean,
+  discloseEvidence: Boolean
+): [] {
+  assert(
+    !agreements.member(disclose(manifestHash)),
+    "an agreement with this manifest hash already exists"
+  );
+
+  agreements.insert(disclose(manifestHash), disclose(Agreement {
+    evidence_root: evidenceRoot,
+    finalizer: finalizerKey,
+    verdict: Verdict.PENDING,
+    status: Status.OPEN,
+    disclose_amount: discloseAmount,
+    disclose_parties: discloseParties,
+    disclose_evidence: discloseEvidence,
+    amount_commitment: pad(32, "")
+  }));
+  opened_count.increment(1);
+}
+
+/**
+ * Fund it, binding the shielded amount to a commitment.
+ *
+ * The commitment is published so the funder is fixed to one figure from the
+ * start; the figure itself stays a witness.
+ */
+export circuit fund(manifestHash: Bytes<32>): [] {
+  assert(agreements.member(disclose(manifestHash)), "no such agreement");
+  const a = agreements.lookup(disclose(manifestHash));
+  assert(a.status == Status.OPEN, "this agreement is not open for funding");
+
+  agreements.insert(disclose(manifestHash), disclose(Agreement {
+    evidence_root: a.evidence_root,
+    finalizer: a.finalizer,
+    verdict: a.verdict,
+    status: Status.FUNDED,
+    disclose_amount: a.disclose_amount,
+    disclose_parties: a.disclose_parties,
+    disclose_evidence: a.disclose_evidence,
+    amount_commitment: commitAmount(privateAmount(), privateSalt())
+  }));
+}
+
+/**
+ * Record the verdict. Only the finalizer named at open, and only once.
+ *
+ * PENDING is refused explicitly. Without that a caller could "settle" an
+ * agreement into the state that means undecided, which would look like a
+ * settlement to anything counting statuses and mean nothing at all.
+ */
+export circuit settle(manifestHash: Bytes<32>, outcome: Verdict): [] {
+  assert(agreements.member(disclose(manifestHash)), "no such agreement");
+  const a = agreements.lookup(disclose(manifestHash));
+  assert(a.status == Status.FUNDED, "nothing funded to settle");
+  assert(
+    publicKey(localSecretKey()) == a.finalizer,
+    "only the finalizer named in the agreement may record a verdict"
+  );
+  assert(outcome != Verdict.PENDING, "PENDING is not a verdict anyone may record");
+
+  agreements.insert(disclose(manifestHash), disclose(Agreement {
+    evidence_root: a.evidence_root,
+    finalizer: a.finalizer,
+    verdict: outcome,
+    status: Status.SETTLED,
+    disclose_amount: a.disclose_amount,
+    disclose_parties: a.disclose_parties,
+    disclose_evidence: a.disclose_evidence,
+    amount_commitment: a.amount_commitment
+  }));
+  settled_count.increment(1);
+}
