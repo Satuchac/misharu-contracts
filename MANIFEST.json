@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.3.0",
-  "release_digest": "sha256:8630244523e08332aa1e516931cd9ad7a598966b8605d70fa18d13e6ae33337e",
-  "built_at": "2026-08-20T06:12:58.592Z",
+  "version": "0.3.1",
+  "release_digest": "sha256:08b1c1d4920bea0cf4b2b1c6ee6133579b4f1ba01dbb8d5a12c1a8df141eb5ce",
+  "built_at": "2026-08-20T06:36:12.224Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -225,6 +225,12 @@
       "sha256": "sha256:9964a08fbdc53caaae31c1b2fbc0d391022aa1f688782fe308f2d4f6621f2265",
       "bytes": 7477,
       "what": "The membership verifier on Base Sepolia, proven against a real case's published evidence root."
+    },
+    {
+      "path": "SCENARIOS.md",
+      "sha256": "sha256:6d81824bfc566bc2510648852e8311129ec65c664a960d74dc240e37b4bdd4e9",
+      "bytes": 15033,
+      "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
     },
     {
       "path": "LICENSE",

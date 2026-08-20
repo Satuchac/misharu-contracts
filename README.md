@@ -1,6 +1,6 @@
 # Misharu contracts
 
-**Version 0.3.0** · release digest `sha256:8630244523e08332aa1e516931cd9ad7a598966b8605d70fa18d13e6ae33337e`
+**Version 0.3.1** · release digest `sha256:08b1c1d4920bea0cf4b2b1c6ee6133579b4f1ba01dbb8d5a12c1a8df141eb5ce`
 
 The deployed escrow contracts behind [Misharu](https://misharu.176-102-64-240.sslip.io),
 their compiled artifacts, the addresses they run at, and the evidence that the
@@ -122,6 +122,7 @@ bytes, not a moving branch.
 - **`tools/panel.mjs`** — The panel rules: what makes a quorum valid, and how votes are counted. Published so a tally can be recomputed from the votes without asking our server anything.
 - **`tools/canonical.mjs`** — JCS canonical JSON and the domain-separated commitments everything is signed over.
 - **`tools/amount.mjs`** — Committed amounts: how a price is hidden from the panel, and how the two parties reproduce the digest.
+- **`SCENARIOS.md`** — Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built.
 
 ## Licence
 
