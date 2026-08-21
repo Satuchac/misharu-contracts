@@ -249,6 +249,19 @@ public contract disagree about the same bytes, and one of them is wrong. The
 observation is not downgraded — it fails. Publishing a number two verifiers
 cannot agree about would be worse than publishing nothing.
 
+### An agreement can require the chain, not just benefit from it
+
+A contract nobody can demand is a contract nobody has. `ObservationPolicy` now
+carries `requireOnChainVerification`, and with it set an observation our adapter
+verified but no chain did is **not admitted** — the claim goes INDETERMINATE and
+INDETERMINATE pays nobody.
+
+It is off by default on purpose: turning it on retroactively would fail every
+historical case, and a party who does not need it should not pay for a chain
+read on every settlement. Requiring it does not excuse anything else — a
+chain-verified price that is stale, or wider than the agreement allows, or from
+a feed the agreement never committed to, is still refused.
+
 ### What makes an observation refused
 
 An observation that is not admitted does **not** fall back to a judge's opinion.
@@ -259,6 +272,7 @@ The claim goes INDETERMINATE, and an INDETERMINATE claim pays nobody.
 | `STALE` | older than the agreement's `maximumAgeSeconds` |
 | `WIDE_CONFIDENCE` | Pyth's own confidence interval is wider than the agreement allows — a price nobody is sure of should not move money |
 | `FEED_NOT_ALLOWED` | not one of the feeds the agreement committed to, so a relayer cannot substitute a friendlier market |
+| `NOT_VERIFIED_ON_CHAIN` | the agreement demanded a chain-confirmed price and got one only our adapter had checked |
 
 The allowed feeds are part of the manifest hash, like everything else. Otherwise
 whoever fetches the data chooses which market answers the question.

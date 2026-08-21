@@ -1,0 +1,95 @@
+{
+  "what_this_is": "A 5-of-9 panel that reached its quorum off chain and had that same quorum enforced on chain by judge_multisig. Five distinct seats approved in five separate transactions.",
+  "network": "Midnight Preprod",
+  "agreement_id": "agr_b1259eb0",
+  "manifest_hash": "sha256:e1a7ca56299015fa91b0b0650fefd2abaf0a3031e8802284ab1b35ef81d45109",
+  "evidence_root": "sha256:60e98fe5acc888b345adf65dd1cb5d388adcd9482a607b2a87cee7c0b73547b2",
+  "panel": {
+    "quorum": 5,
+    "seats": [
+      {
+        "id": "human:member1",
+        "kind": "human",
+        "midnight_public_key": "8547042aa7f38030e00dc57cb36c1ab62064da7efdac72d440521227a7e9f6f8"
+      },
+      {
+        "id": "human:member2",
+        "kind": "human",
+        "midnight_public_key": "87bf6249a18948c74f7c31331a25a4fcbc7a9afc81b42ac821a787bb329a9521"
+      },
+      {
+        "id": "human:member3",
+        "kind": "human",
+        "midnight_public_key": "80fbc105997e3fba362d70c452c84754f3a7f9947d082dd471d72965bf25e72e"
+      },
+      {
+        "id": "human:member4",
+        "kind": "human",
+        "midnight_public_key": "3da69d012db8853c3c337936265158bac63a863f748441069ad996e3c944f24a"
+      },
+      {
+        "id": "human:member5",
+        "kind": "human",
+        "midnight_public_key": "22ae6c766abb351e07d66acb8d98fbc4880d2b0c07e0dd744f58dffae7a562ec"
+      },
+      {
+        "id": "human:member6",
+        "kind": "human",
+        "midnight_public_key": "1d723922ee2dda8ada32d8fd65f85cb888b64ceb5dbd5ac2f53c9ef02a0da765"
+      },
+      {
+        "id": "human:member7",
+        "kind": "human",
+        "midnight_public_key": "dfe7e67963b3291b914c54d3c5c99a4b2b7dce30503464d0a4a6c066e6844e6d"
+      },
+      {
+        "id": "human:member8",
+        "kind": "human",
+        "midnight_public_key": "6ab5c0d4b4ff1ca0d6d4d0989377ee219e25e3ce7c8d3a6d80e033edfa3a9bf2"
+      },
+      {
+        "id": "agent:reviewer",
+        "kind": "agent",
+        "midnight_public_key": "dd393fcca3caf0f6d0bae1911e9d256c11ddcf334e61c32f252beff64d22d910"
+      }
+    ]
+  },
+  "approved_by": [
+    "human:member1",
+    "human:member2",
+    "human:member3",
+    "human:member4",
+    "human:member5"
+  ],
+  "contract_address": "e542b293c3b63734268be381ee25dd8cb44d9f4a5df1e2f78c5b846a783f5bb5",
+  "transactions": {
+    "open": "00a23aacccc62070bf8a0de89d6a4a43a84b61340322d9e7e45eafb52041f54284",
+    "approvals": [
+      {
+        "signer_id": "human:member1",
+        "tx": "00e5a8e749ec97cd2f46ad18cedc17bcbc085bc0be06bfd8db28c43c1abf59a5a8"
+      },
+      {
+        "signer_id": "human:member2",
+        "tx": "006f0951564388100f89d01f289c5a5f89e5cabd5f2be7e7b93ca66e78897beb49"
+      },
+      {
+        "signer_id": "human:member3",
+        "tx": "00940d1bca7b64ef37ed944c3e660f76a284e54cc0beca2fb9da9b8af4b76832ee"
+      },
+      {
+        "signer_id": "human:member4",
+        "tx": "0029bede45e9a124f8099bd8dcfc26fc28050abc1ebc6943ddb44fb135204a3f1e"
+      },
+      {
+        "signer_id": "human:member5",
+        "tx": "00a1c6b1a0783dfc93d412185d9c1cc3d609432d3988d8e0d89edc10f2d2a5239d"
+      }
+    ],
+    "settle": "00ee802be66b39a15d1896f664eaf19cd99a74a661357e41e38c3c20734e4abe8e"
+  },
+  "read_back_from_the_indexer": "status SETTLED · verdict ACCEPT · threshold 5 of 9 · approvals 5 recorded, 5 distinct keys · finalizers 9 registered",
+  "what_this_shows": "judge_multisig now declares nine finalizer slots, so 5-of-9 is a deployment rather than a simulation. Each approval is its own transaction proving knowledge of a different registered secret — a circuit has one caller, so m-of-n has to mean m calls.",
+  "what_it_does_not_show": "The other four rails still check one signature each. And a single-operator run holds every seat secret; in production each seat approves from its own machine.",
+  "read_it_yourself": "node contracts/midnight/deploy/check-multisig.mjs e542b293c3b63734268be381ee25dd8cb44d9f4a5df1e2f78c5b846a783f5bb5"
+}

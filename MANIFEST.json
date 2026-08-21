@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.5.0",
-  "release_digest": "sha256:1e19956d55541fa133ef5cbecf713471b3a8e3b15a7c11aab91f5490c68f6367",
-  "built_at": "2026-08-21T13:20:17.897Z",
+  "version": "0.6.0",
+  "release_digest": "sha256:b53cb453fcde52a411403b4bb8697e81e8d9bee3dd193f905847d4b492f745fa",
+  "built_at": "2026-08-21T14:41:08.859Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -245,6 +245,12 @@
       "what": "A 2-of-3 panel — two people and one AI agent — whose quorum was enforced on chain."
     },
     {
+      "path": "deployments/panel-multisig-5of9.json",
+      "sha256": "sha256:d0bea9eea739928993bd9ecc9cad6c99c85cad76b3ca26ae9c96e95c0fcc6618",
+      "bytes": 3928,
+      "what": "A 5-of-9 panel settled on chain: five distinct seats approving in five separate transactions, read back from the indexer as 5 recorded, 5 distinct keys, 9 registered."
+    },
+    {
       "path": "deployments/predicate-verifier.json",
       "sha256": "sha256:b17ddef531e2337ffe8bd7c298926c69d46ae6f495eb9ec8b37255f1dbaea8e1",
       "bytes": 2709,
@@ -258,8 +264,8 @@
     },
     {
       "path": "SCENARIOS.md",
-      "sha256": "sha256:89da132e29a66435a944a461ca30611a2824c90768fdf81b05c0b91bd1ad6975",
-      "bytes": 19917,
+      "sha256": "sha256:f5e3e847077e5133f2188fe27df89a9c94cf9f7402a0216b1cf98a13f738aab7",
+      "bytes": 20742,
       "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
     },
     {

@@ -1,6 +1,6 @@
 # Misharu contracts
 
-**Version 0.5.0** · release digest `sha256:1e19956d55541fa133ef5cbecf713471b3a8e3b15a7c11aab91f5490c68f6367`
+**Version 0.6.0** · release digest `sha256:b53cb453fcde52a411403b4bb8697e81e8d9bee3dd193f905847d4b492f745fa`
 
 The deployed escrow contracts behind [Misharu](https://misharu.176-102-64-240.sslip.io),
 their compiled artifacts, the addresses they run at, and the evidence that the
