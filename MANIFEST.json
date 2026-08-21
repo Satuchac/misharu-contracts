@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "release_digest": "sha256:15dd3a1d17253f41adff06068330d967492766ad858f4f9ebd39ea0cbb5cc0b0",
-  "built_at": "2026-08-21T16:31:10.246Z",
+  "built_at": "2026-08-21T16:31:27.785Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
