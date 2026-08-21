@@ -58,6 +58,8 @@ Any combination in this table is expressible.
 | **S13** | Cross-chain settlement | 1 AI judge | **+** on Midnight | — | **+** on Midnight | detectable, not prevented | `cross-chain-*.ts` |
 | **S14** | Parametric price bet | Pyth observation | — | — | — | Solana / Cardano | `run-market-judgements.ts` |
 | **S14b** | The same, verified by a contract | Pyth, `ON_CHAIN_VERIFIED` | — | — | — | Base Sepolia verifier | `oracle-on-chain-check.ts` |
+| **S14c** | **Two independent oracles must agree** | Pyth **+** Chainlink, m-of-n | — | — | — | Base Sepolia aggregator | `deploy-multi-oracle.ts` |
+| **S14d** | They disagree → nobody is paid | m-of-n, quorum not met | — | — | — | refuses on chain | `MultiOracleAggregator.t.sol` |
 | **S15** | Oracle as one claim among several | rules + judge + oracle | — | — | — | any rail | `cardano-judgement.ts` |
 | **S16** | Oracle unusable → nobody is paid | Pyth observation | — | — | — | any rail | `oracle-pyth` tests |
 | **S17** | Event-market settlement | Kalshi via Pyth | — | — | — | any rail | `run-market-judgements.ts` |
@@ -249,6 +251,61 @@ public contract disagree about the same bytes, and one of them is wrong. The
 observation is not downgraded — it fails. Publishing a number two verifiers
 cannot agree about would be worse than publishing nothing.
 
+### m-of-n oracles: two providers must agree, or nobody is paid
+
+Verifying Pyth's signature proved *Pyth said it*. It could never prove Pyth was
+**right** — a bad publisher aggregate, a compromised feed, an outage pinning a
+stale value, and a Pyth-wide fault was a Misharu-wide fault. No amount of
+signature checking fixes that; only a second, unrelated provider does.
+
+**`MultiOracleAggregator` is live at
+[`0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef`](https://sepolia.basescan.org/address/0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef)**,
+over two genuinely independent sources:
+
+| source | kind | how it is checked |
+|---|---|---|
+| **Pyth** | pull | a signed Wormhole attestation, verified on chain: guardian signatures, then Merkle inclusion in the signed root, then the price parsed out |
+| **Chainlink** | push | an answer already on chain; the adapter refuses an incomplete round, an answer carried over from an earlier round, and a non-positive answer |
+
+A live ETH/USD read:
+
+```
+pyth       $2385.16
+chainlink  $2388.21
+agreed     2 of 2 · spread 12 bps
+PRICE      $2386.69   (median of the agreeing set)
+```
+
+**Agreement is a band, not equality.** Two honest oracles never report the same
+integer — they sample different venues at different instants — so sources within
+`toleranceBps` of each other form a cluster, the largest cluster wins, and the
+answer is the **median of that cluster** so an outlier cannot drag it. The band
+is committed in the agreement; one chosen after the prices are known is a band
+chosen by whoever is losing.
+
+**It fails closed.** A median-of-three always returns something, even when all
+three disagree wildly — it silently picks the middle of a mess. This refuses:
+the claim goes INDETERMINATE and INDETERMINATE pays nobody, which is exactly the
+rule a deadlocked panel follows. Oracles disagreeing is the situation where
+guessing is worst. Asked to settle with a 0 bps band, the live contract reverts.
+
+**One provider down is survivable** — that is what more than one is for. A source
+that reverts, is stale, is dated after the block, or reports a non-positive
+price is excluded and *named* in the result, never silently dropped.
+
+The failure that would otherwise be quiet and catastrophic: two broken sources
+both returning zero agree with each other perfectly, form a majority, and settle
+a price of nothing. Non-positive readings are excluded before clustering, and a
+test asserts zeros do not agree with each other.
+
+**Honest limits.** 2-of-3 is implemented and tested, but only two independent
+providers are wired on Base Sepolia today — what runs there is **2-of-2**, and
+adding a third is registering another adapter. And this does not fix
+**correlated failure**: if every source ultimately reads the same handful of
+exchanges, three providers agreeing is three views of one fact, and no contract
+can tell that from genuine independence. Choosing sources that do not share
+plumbing is a judgement made when the agreement is written.
+
 ### An agreement can require the chain, not just benefit from it
 
 A contract nobody can demand is a contract nobody has. `ObservationPolicy` now
@@ -355,9 +412,11 @@ Stated because a capability table that lists only capabilities is marketing.
   coherent thing to want and is not supported; the majority rule is symmetric.
 - **Panels over nine seats.** Nine `if` branches is where this construction
   stops being reasonable; a twenty-seat panel wants different machinery.
-- **Any oracle but Pyth.** One provider is a single point of failure, and
-  nothing here cross-checks a second source. This is now the largest remaining
-  gap on the oracle side.
+- **A third live provider.** m-of-n is built and tested at 2-of-3; two
+  independent providers are wired on Base Sepolia, so what runs is 2-of-2.
+- **Anything about correlated sources.** The aggregator counts providers, not
+  independence. Two oracles reading the same exchanges will agree with each
+  other perfectly while both being wrong.
 - **Guardian-set rotation without a redeploy.** The set index is pinned in the
   verifier's constructor. That is deliberate — a contract that accepted whatever
   index a VAA declared would accept a set nobody told it about — but it means a

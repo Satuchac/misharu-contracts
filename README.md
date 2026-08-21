@@ -1,6 +1,6 @@
 # Misharu contracts
 
-**Version 0.6.0** · release digest `sha256:b53cb453fcde52a411403b4bb8697e81e8d9bee3dd193f905847d4b492f745fa`
+**Version 0.7.0** · release digest `sha256:d1cf0a95ca8a5853d5662e91e9417c7ae4f725414c612027400c28f69515055a`
 
 The deployed escrow contracts behind [Misharu](https://misharu.176-102-64-240.sslip.io),
 their compiled artifacts, the addresses they run at, and the evidence that the
@@ -31,6 +31,7 @@ and the differences matter more than the addresses do.
 | Midnight Preprod | Judge predicates (ZK) | `ded9816a1c924e2676a59904a8faac609d9f74d7dc4f1da2a117ffb53c0c354b` | deployed | [read the ledger](https://indexer.preprod.midnight.network) |
 | Midnight Preprod | Judge registry (many agreements) | `6d0647c018577f7d701ecbbb736b9918be0a0039cd54256333679c2894022c54` | deployed | [read the ledger](https://indexer.preprod.midnight.network) |
 | Midnight Preprod | Judge multisig (m-of-n on chain) | `bfa7b78521cefa37c1ebdc811a316487854481693ab81507f1efb8eba9c57c1f` | deployed | [read the ledger](https://indexer.preprod.midnight.network) |
+| Base Sepolia | Multi-oracle aggregator (m-of-n) | `0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef` | deployed | [on chain](https://sepolia.basescan.org/address/0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef) |
 | Base Sepolia | Pyth price reader (Merkle + policy) | `0x309ae7a1ac0090e1d0d21c776b7956f3c0c63fb6` | deployed | [on chain](https://sepolia.basescan.org/address/0x309ae7a1ac0090e1d0d21c776b7956f3c0c63fb6) |
 | Base Sepolia | Wormhole VAA verifier (Pyth attestations) | `0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd` | deployed | [on chain](https://sepolia.basescan.org/address/0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd) |
 | Base Sepolia | ZK predicate verifier (UltraHonk) | `0x6ea82f8624c448a84a6c91b825d01ac687424749` | deployed | [on chain](https://sepolia.basescan.org/address/0x6ea82f8624c448a84a6c91b825d01ac687424749) |
@@ -122,6 +123,10 @@ bytes, not a moving branch.
 - **`evm/oracle/WormholeVaaVerifier.sol`** — Recovers Wormhole guardian signatures over a Pyth attestation and refuses anything short of quorum. Before this, 'the guardians signed it' was a claim our adapter made and signed; now a stranger can check the same bytes against a public node with nothing of ours involved.
 - **`evm/oracle/guardian-set.json`** — The pinned Wormhole guardian set the verifier is deployed with. Pinned on purpose: a contract accepting whatever set index a VAA declared would accept a set nobody told it about.
 - **`evm/oracle/PythPriceReader.sol`** — Reads the price out of the guardian-signed Merkle root and applies the freshness and confidence policy on chain. Closes the gap the VAA verifier left: proving the guardians signed some bytes says nothing about which number an adapter then pulled out of them.
+- **`evm/oracle/IPriceSource.sol`** — The shape every provider is normalised to — 18 decimals, always. Comparing an 8-decimal Chainlink answer against a Pyth base-10 exponent by raw integer would make agreeing oracles look wildly apart.
+- **`evm/oracle/MultiOracleAggregator.sol`** — m-of-n independent oracles must agree within a committed band, or the claim goes INDETERMINATE and nobody is paid. A median-of-three would silently return the middle of a mess; this refuses.
+- **`evm/oracle/PythSource.sol`** — Pyth as one voice among several: a pull oracle whose attestation is verified before its number is allowed to vote.
+- **`evm/oracle/ChainlinkSource.sol`** — Chainlink as one voice among several. Refuses an incomplete round, an answer carried over from an earlier round, and a non-positive answer — three checks integrations routinely skip.
 - **`tools/verify.js`** — Zero-dependency receipt verifier. Node or a browser, no install. Reports INCOMPLETE where a check could not run — a check that did not happen is never a pass.
 - **`tools/README.md`** — How to run the verifier and what each result means.
 - **`tools/panel.mjs`** — The panel rules: what makes a quorum valid, and how votes are counted. Published so a tally can be recomputed from the votes without asking our server anything.

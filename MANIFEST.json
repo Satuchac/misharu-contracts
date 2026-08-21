@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.6.0",
-  "release_digest": "sha256:b53cb453fcde52a411403b4bb8697e81e8d9bee3dd193f905847d4b492f745fa",
-  "built_at": "2026-08-21T14:41:08.859Z",
+  "version": "0.7.0",
+  "release_digest": "sha256:d1cf0a95ca8a5853d5662e91e9417c7ae4f725414c612027400c28f69515055a",
+  "built_at": "2026-08-21T16:10:09.067Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -191,6 +191,36 @@
       "what": "Reads the price out of the guardian-signed Merkle root and applies the freshness and confidence policy on chain. Closes the gap the VAA verifier left: proving the guardians signed some bytes says nothing about which number an adapter then pulled out of them."
     },
     {
+      "path": "evm/oracle/IPriceSource.sol",
+      "sha256": "sha256:01f76a69f4fe672474f7c1f2c2353088c80e45df61ffe45037e91ef4464ea7a3",
+      "bytes": 1665,
+      "what": "The shape every provider is normalised to — 18 decimals, always. Comparing an 8-decimal Chainlink answer against a Pyth base-10 exponent by raw integer would make agreeing oracles look wildly apart."
+    },
+    {
+      "path": "evm/oracle/MultiOracleAggregator.sol",
+      "sha256": "sha256:87a50150d15d2696524ed84d9c2ca4f173cbab4169d7f87dc2cc5da721f16967",
+      "bytes": 9765,
+      "what": "m-of-n independent oracles must agree within a committed band, or the claim goes INDETERMINATE and nobody is paid. A median-of-three would silently return the middle of a mess; this refuses."
+    },
+    {
+      "path": "evm/oracle/PythSource.sol",
+      "sha256": "sha256:fde886cf5a46224b5f4d8dbdb7d55d4f43ff88a81e124b7f1f286042c96e6188",
+      "bytes": 2436,
+      "what": "Pyth as one voice among several: a pull oracle whose attestation is verified before its number is allowed to vote."
+    },
+    {
+      "path": "evm/oracle/ChainlinkSource.sol",
+      "sha256": "sha256:a7f03b7f6f6ca70f0609f0de8a977b29460a513ede0cb4609963cec011cc2de4",
+      "bytes": 2637,
+      "what": "Chainlink as one voice among several. Refuses an incomplete round, an answer carried over from an earlier round, and a non-positive answer — three checks integrations routinely skip."
+    },
+    {
+      "path": "deployments/multi-oracle.json",
+      "sha256": "sha256:ebbd78e5de24662700ffb4d316e24e4c69d02b29571130560b6a2363ad97a167",
+      "bytes": 2667,
+      "what": "The aggregator on Base Sepolia over Pyth and Chainlink, with a live ETH/USD reading and the spread between the two providers."
+    },
+    {
       "path": "deployments/price-reader.json",
       "sha256": "sha256:4440456877a150bbec9ebc21020bb66d69f05a15c29864506cae459e8b005abe",
       "bytes": 1699,
@@ -264,8 +294,8 @@
     },
     {
       "path": "SCENARIOS.md",
-      "sha256": "sha256:f5e3e847077e5133f2188fe27df89a9c94cf9f7402a0216b1cf98a13f738aab7",
-      "bytes": 20742,
+      "sha256": "sha256:5aae6ce0bf86fd71e187afd94b86b5c5bc580366715a5c74ba9febbf67899297",
+      "bytes": 24196,
       "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
     },
     {
@@ -387,6 +417,14 @@
       "status": "deployed",
       "checked": "[read the ledger](https://indexer.preprod.midnight.network)",
       "how": "Compact 0.31.1 to proof-carrying circuits. Read the ledger from the public indexer — what is on chain is a commitment and a verdict, never the shielded value."
+    },
+    {
+      "rail": "Base Sepolia",
+      "contract": "Multi-oracle aggregator (m-of-n)",
+      "address": "0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef",
+      "status": "deployed",
+      "checked": "[on chain](https://sepolia.basescan.org/address/0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef)",
+      "how": "Reads Pyth and Chainlink and settles only when enough of them agree within a committed band. Refuses otherwise — a disagreement settles nothing rather than picking a middle."
     },
     {
       "rail": "Base Sepolia",

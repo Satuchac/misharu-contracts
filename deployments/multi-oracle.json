@@ -1,0 +1,38 @@
+{
+  "what_this_is": "Two independent oracles cross-checked on chain. Settles only when enough of them agree within a band the agreement committed to, and refuses otherwise — the claim goes INDETERMINATE and INDETERMINATE pays nobody, which is the same rule a deadlocked panel follows.",
+  "network": "Base Sepolia",
+  "chain_id": 84532,
+  "aggregator": "0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef",
+  "read_gas": "207189",
+  "sources": [
+    {
+      "name": "pyth",
+      "adapter": "0xa8ddac4de23252643bad0707aff36bbe17a7296c",
+      "kind": "pull",
+      "what": "A signed Wormhole attestation verified on chain: guardian signatures, then Merkle inclusion in the signed root, then the price parsed out.",
+      "verifier": "0x309ae7a1ac0090e1d0d21c776b7956f3c0c63fb6"
+    },
+    {
+      "name": "chainlink",
+      "adapter": "0x668d3cf740a618005a1a42af73404aedb11a9d3d",
+      "kind": "push",
+      "what": "An answer already on chain. The adapter refuses an incomplete round, an answer carried over from an earlier round, and a non-positive answer.",
+      "aggregator_feed": "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1"
+    }
+  ],
+  "live_reading": {
+    "pair": "ETH/USD",
+    "price_usd": "2386.69",
+    "agreed": "2 of 2",
+    "spread_bps": "12"
+  },
+  "how_agreement_is_decided": "Two honest oracles never report the same integer, so agreement is a BAND: sources within toleranceBps of each other form a cluster, the largest cluster wins, and the answer is the median of that cluster so an outlier cannot drag it. The band is committed in the agreement — one chosen after the prices are known is a band chosen by whoever is losing.",
+  "why_it_fails_closed": "A median-of-three always returns something, even when all three disagree wildly. This refuses instead. Oracles disagreeing is exactly the situation where guessing is worst.",
+  "what_it_does_not_fix": "Correlated failure. If every source ultimately reads the same handful of exchanges, three providers agreeing is three views of one fact, and no contract can tell that from genuine independence. Choosing sources that do not share plumbing is a judgement made when the agreement is written.",
+  "still_only_two_live": "2-of-3 is implemented and tested; only two independent providers are wired on Base Sepolia today, so what runs here is 2-of-2. Adding a third is registering another adapter.",
+  "verify_it_yourself": [
+    "cast call 0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef \"sourceCount()(uint256)\" --rpc-url https://sepolia.base.org",
+    "npx tsx scripts/deploy-multi-oracle.ts   # fetches a fresh attestation and repeats all of this"
+  ],
+  "deployed_at": "2026-08-21T16:07:57.105Z"
+}
