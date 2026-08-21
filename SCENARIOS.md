@@ -61,7 +61,8 @@ Any combination in this table is expressible.
 | **S14c** | **Two independent oracles must agree** | Pyth **+** Chainlink, m-of-n | — | — | — | Base Sepolia aggregator | `deploy-multi-oracle.ts` |
 | **S14d** | They disagree → nobody is paid | m-of-n, quorum not met | — | — | — | refuses on chain | `MultiOracleAggregator.t.sol` |
 | **S14e** | One provider dead, the rest settle | 2-of-3, one stale | — | — | — | Base Sepolia aggregator | live: API3 excluded |
-| **S14f** | A first-party API provider votes | signed feed, m-of-n reporters | — | — | — | any rail | `SignedFeedSource.t.sol` |
+| **S14f** | A first-party API provider votes | signed feed, m-of-n reporters | — | — | — | Base Sepolia, live | `deploy-signed-feed.ts` |
+| **S14g** | Every oracle claim re-derived on chain | — | — | — | — | Base Sepolia | `oracle-scenarios.ts` |
 | **S15** | Oracle as one claim among several | rules + judge + oracle | — | — | — | any rail | `cardano-judgement.ts` |
 | **S16** | Oracle unusable → nobody is paid | Pyth observation | — | — | — | any rail | `oracle-pyth` tests |
 | **S17** | Event-market settlement | Kalshi via Pyth | — | — | — | any rail | `run-market-judgements.ts` |
@@ -323,11 +324,29 @@ putting the answer on chain. The only question is who you must trust to have
 done it faithfully — and if a relayer submits a number the contract believes,
 **the relayer is the oracle and the API is decoration**.
 
-`SignedFeedSource` is the answer: the provider signs `(chainId, contract,
-feedId, price, publishTime)`, the chain verifies against a pinned key set, and
-the relayer becomes a courier who cannot alter what they carry. Every field in
-that digest stops a replay — across chains, across deployments, across feeds,
-and across time.
+`SignedFeedSource` is the answer, and it is **live at
+[`0x0558be40a3f8fcb5455c7f39551f50a739335cd0`](https://sepolia.basescan.org/address/0x0558be40a3f8fcb5455c7f39551f50a739335cd0)**:
+the provider signs `(chainId, contract, feedId, price, publishTime)`, the chain
+verifies against a pinned key set, and the relayer becomes a courier who cannot
+alter what they carry. Every field in that digest stops a replay — across
+chains, across deployments, across feeds, and across time.
+
+Exercised against the live contract with real exchange data — Kraken $2399.73
+and Coinbase $2399.88, reported as their median. All three forgeries refused on
+chain: the relayer altering the price, the relayer restamping the time, and one
+signature where two are required.
+
+**Its trust level is not the same as the other three, and that is why it is not
+in the production aggregator.** Pyth, Chainlink and API3 are networks whose own
+operators sign. In this deployment the reporter keys are *ours*, so the chain
+confirms that Misharu signed a number — not that Kraken said it. The **data** is
+genuinely independent of the oracle networks; the **attestation** is only as
+good as this project. Put it beside three networks and four sources would look
+like four independent opinions when one of them is us.
+
+For a real deployment the reporter keys belong to the provider, and then the
+chain is confirming something nobody here can forge. That is the integration
+path, and it needs the provider's signing setup rather than more code.
 
 It requires **m of n reporters within the single provider**, so one compromised
 key is not enough. That is deliberately separate from the aggregator's own
@@ -469,6 +488,30 @@ Stated because a capability table that lists only capabilities is marketing.
 
 ---
 
+## 8a. Re-deriving the oracle claims
+
+The deployment records assert things. `scripts/oracle-scenarios.ts` re-derives
+them against the live contracts in one command: it fetches a fresh attestation,
+puts it to the deployed verifier, reads the price out of the signed root,
+cross-checks three providers, and tries each forgery the contracts are supposed
+to refuse.
+
+```
+O1  the chain recovers the guardian signatures     quorum 13 of 19
+O2  the chain reads the price from the signed root $2399.59
+O3  three providers, and the quorum that decides   2 of 3, api3 too old
+O4  a first-party signed feed                      3 reporters pinned
+```
+
+Adversarial by construction: a verifier that accepted everything would pass
+every positive check, so the refusals are what carry the information — a
+tampered body, a price not in the signed root with the signatures still valid, a
+stale price, a feed the caller did not ask for, a disagreement asked to settle,
+unanimity demanded while a source is dead, an unsigned price, and a signature
+from nobody.
+
+---
+
 ## 9. Running the table
 
 ```
@@ -479,6 +522,7 @@ node contracts/midnight/deploy/multisig-sim.mjs   # 19 — quorums in the circui
 npx vitest run console/amount-blind.test.ts       # 21 — the price stays hidden
 npx vitest run packages/receipt/src/sealing.test.ts  # 17 — only the panel reads it
 npx tsx scripts/panel-flow.ts                     # the whole panel path over HTTP
+npx tsx scripts/oracle-scenarios.ts               # every oracle claim, against the live contracts
 ```
 
 `scenarios.ts` backs off when the console rate-limits it and uses a distinct

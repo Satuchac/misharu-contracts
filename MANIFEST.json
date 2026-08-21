@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
   "version": "0.8.0",
-  "release_digest": "sha256:2fe4fc32040789f425d50facf4cc4dbf6000e019a6203ed0517c427d600b0f7e",
-  "built_at": "2026-08-21T16:21:54.651Z",
+  "release_digest": "sha256:15dd3a1d17253f41adff06068330d967492766ad858f4f9ebd39ea0cbb5cc0b0",
+  "built_at": "2026-08-21T16:31:10.246Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -227,6 +227,12 @@
       "what": "Chainlink as one voice among several. Refuses an incomplete round, an answer carried over from an earlier round, and a non-positive answer — three checks integrations routinely skip."
     },
     {
+      "path": "deployments/signed-feed.json",
+      "sha256": "sha256:d5d2a41ee89b7d093daa5143856d5a09993c8096867dd34a7f38d87ec31584f5",
+      "bytes": 2123,
+      "what": "The first-party signed feed on Base Sepolia, exercised with real exchange data. Its trust level is stated in the file and is NOT the same as the three oracle networks: the reporter keys are ours, so the chain confirms Misharu signed a number, not that the exchange said it."
+    },
+    {
       "path": "deployments/multi-oracle.json",
       "sha256": "sha256:f7a951f6fe157fad0735b99b17238fc4253c7b5a4010d4be1bc98ed29df86339",
       "bytes": 3258,
@@ -306,8 +312,8 @@
     },
     {
       "path": "SCENARIOS.md",
-      "sha256": "sha256:fe1d24ae1582a8dedd5dc5e9e7f95b678275c2fb7d6c7428ba1679061d50e1b9",
-      "bytes": 26512,
+      "sha256": "sha256:26d68ba428e42e4ddea1404f52c244ecd6b35e493ed493c6feb2b636eb7b1af3",
+      "bytes": 28972,
       "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
     },
     {

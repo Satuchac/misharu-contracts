@@ -1,0 +1,36 @@
+{
+  "what_this_is": "A first-party signed price feed, live on Base Sepolia. The provider signs (chainId, contract, feedId, price, publishTime); the chain verifies against a pinned key set; the relayer becomes a courier who cannot alter what they carry.",
+  "network": "Base Sepolia",
+  "chain_id": 84532,
+  "address": "0x0558be40a3f8fcb5455c7f39551f50a739335cd0",
+  "deploy_tx": "0x084c90a0227358cfaec54abe06043b0cd417d767e8bcf619c6e9e3c91b9fc654",
+  "deploy_gas": "589545",
+  "feed": "ETH/USD",
+  "reporters": [
+    "0x4AfA1dD94D279764DBbb161262119740B4e8Dbb7",
+    "0x4e105c8AC4e8Db598da32Df3e9C8e5Dd2e6EC829",
+    "0xCee74E79a1D047400F52da4f4d8798B26A4a37A4"
+  ],
+  "threshold": "2 of 3",
+  "data_source": [
+    "kraken",
+    "coinbase"
+  ],
+  "live_reading": {
+    "price_usd": "2399.80",
+    "venues": 2
+  },
+  "trust_level_is_NOT_the_same_as_the_other_sources": "Pyth, Chainlink and API3 are networks whose own operators sign. Here the reporter keys are OURS, so the chain confirms that MISHARU signed a number — not that Kraken or Coinbase said it. The DATA is genuinely independent of the oracle networks; the ATTESTATION is only as good as this project. For a real deployment the reporter keys belong to the provider, and then the chain is confirming something nobody here can forge.",
+  "why_it_is_not_in_the_production_aggregator": "Adding it beside three networks would make four sources look like four independent opinions when one of them is ours. The mechanism is proven; the independence is not, and the difference matters more than the count.",
+  "proven_on_chain": [
+    "a signed price reads back unchanged",
+    "a relayer altering the price is refused",
+    "a relayer restamping the time is refused",
+    "one signature where two are required is refused"
+  ],
+  "verify_it_yourself": [
+    "cast call 0x0558be40a3f8fcb5455c7f39551f50a739335cd0 \"reporterCount()(uint256)\" --rpc-url https://sepolia.base.org",
+    "cast call 0x0558be40a3f8fcb5455c7f39551f50a739335cd0 \"digest(int256,uint256)\" <price18> <time> --rpc-url https://sepolia.base.org"
+  ],
+  "deployed_at": "2026-08-21T16:28:28.006Z"
+}
