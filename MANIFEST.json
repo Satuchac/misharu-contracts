@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.7.0",
-  "release_digest": "sha256:d1cf0a95ca8a5853d5662e91e9417c7ae4f725414c612027400c28f69515055a",
-  "built_at": "2026-08-21T16:10:09.067Z",
+  "version": "0.8.0",
+  "release_digest": "sha256:2fe4fc32040789f425d50facf4cc4dbf6000e019a6203ed0517c427d600b0f7e",
+  "built_at": "2026-08-21T16:21:54.651Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -209,6 +209,18 @@
       "what": "Pyth as one voice among several: a pull oracle whose attestation is verified before its number is allowed to vote."
     },
     {
+      "path": "evm/oracle/Api3Source.sol",
+      "sha256": "sha256:0365aaac136e9a4c30f6a224df770a765107c73636e46bdb7845e13ab0bc774d",
+      "bytes": 3025,
+      "what": "API3 as a third lineage: first-party oracles where the data providers sign their own data, with no third-party node layer. Freshness is left to the aggregator on purpose — deciding an answer is too old is not an adapter's call, and making it there would hide the reading instead of showing it excluded and named."
+    },
+    {
+      "path": "evm/oracle/SignedFeedSource.sol",
+      "sha256": "sha256:c512ac6846b6d74df8b6aa2b47ec7127d334d6f9a1f0fcb4dc71f645229ad5d9",
+      "bytes": 7357,
+      "what": "A first-party API provider as a voting source. The provider signs; the chain verifies against a pinned key set; the relayer becomes a courier who cannot alter what they carry. m-of-n reporters within the one provider, so a single compromised key is not enough."
+    },
+    {
       "path": "evm/oracle/ChainlinkSource.sol",
       "sha256": "sha256:a7f03b7f6f6ca70f0609f0de8a977b29460a513ede0cb4609963cec011cc2de4",
       "bytes": 2637,
@@ -216,8 +228,8 @@
     },
     {
       "path": "deployments/multi-oracle.json",
-      "sha256": "sha256:ebbd78e5de24662700ffb4d316e24e4c69d02b29571130560b6a2363ad97a167",
-      "bytes": 2667,
+      "sha256": "sha256:f7a951f6fe157fad0735b99b17238fc4253c7b5a4010d4be1bc98ed29df86339",
+      "bytes": 3258,
       "what": "The aggregator on Base Sepolia over Pyth and Chainlink, with a live ETH/USD reading and the spread between the two providers."
     },
     {
@@ -294,8 +306,8 @@
     },
     {
       "path": "SCENARIOS.md",
-      "sha256": "sha256:5aae6ce0bf86fd71e187afd94b86b5c5bc580366715a5c74ba9febbf67899297",
-      "bytes": 24196,
+      "sha256": "sha256:fe1d24ae1582a8dedd5dc5e9e7f95b678275c2fb7d6c7428ba1679061d50e1b9",
+      "bytes": 26512,
       "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
     },
     {
@@ -421,9 +433,9 @@
     {
       "rail": "Base Sepolia",
       "contract": "Multi-oracle aggregator (m-of-n)",
-      "address": "0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef",
+      "address": "0x3bd99d440e3678f1e9b004473359bb6bcbfbf53b",
       "status": "deployed",
-      "checked": "[on chain](https://sepolia.basescan.org/address/0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef)",
+      "checked": "[on chain](https://sepolia.basescan.org/address/0x3bd99d440e3678f1e9b004473359bb6bcbfbf53b)",
       "how": "Reads Pyth and Chainlink and settles only when enough of them agree within a committed band. Refuses otherwise — a disagreement settles nothing rather than picking a middle."
     },
     {

@@ -2,37 +2,44 @@
   "what_this_is": "Two independent oracles cross-checked on chain. Settles only when enough of them agree within a band the agreement committed to, and refuses otherwise — the claim goes INDETERMINATE and INDETERMINATE pays nobody, which is the same rule a deadlocked panel follows.",
   "network": "Base Sepolia",
   "chain_id": 84532,
-  "aggregator": "0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef",
-  "read_gas": "207189",
+  "aggregator": "0x3bd99d440e3678f1e9b004473359bb6bcbfbf53b",
+  "read_gas": "240975",
   "sources": [
     {
       "name": "pyth",
-      "adapter": "0xa8ddac4de23252643bad0707aff36bbe17a7296c",
+      "adapter": "0x834b2a087faa38cae09a508cc6209a52618837c7",
       "kind": "pull",
       "what": "A signed Wormhole attestation verified on chain: guardian signatures, then Merkle inclusion in the signed root, then the price parsed out.",
       "verifier": "0x309ae7a1ac0090e1d0d21c776b7956f3c0c63fb6"
     },
     {
       "name": "chainlink",
-      "adapter": "0x668d3cf740a618005a1a42af73404aedb11a9d3d",
+      "adapter": "0x8316c5bdbf8060fa8372b31c54f42bb6a2a5bba0",
       "kind": "push",
       "what": "An answer already on chain. The adapter refuses an incomplete round, an answer carried over from an earlier round, and a non-positive answer.",
       "aggregator_feed": "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1"
+    },
+    {
+      "name": "api3",
+      "adapter": "0x9990864dd13549659e2d80be725022708148504d",
+      "kind": "push",
+      "what": "A first-party dAPI: the data providers sign their own data, with no third-party node layer. A third lineage rather than a third relay of the same numbers.",
+      "dapi_proxy": "0x5b0cf2b36a65a6BB085D501B971e4c102B9Cd473"
     }
   ],
   "live_reading": {
     "pair": "ETH/USD",
-    "price_usd": "2386.69",
-    "agreed": "2 of 2",
-    "spread_bps": "12"
+    "price_usd": "2395.35",
+    "agreed": "2 of 3",
+    "spread_bps": "5"
   },
   "how_agreement_is_decided": "Two honest oracles never report the same integer, so agreement is a BAND: sources within toleranceBps of each other form a cluster, the largest cluster wins, and the answer is the median of that cluster so an outlier cannot drag it. The band is committed in the agreement — one chosen after the prices are known is a band chosen by whoever is losing.",
   "why_it_fails_closed": "A median-of-three always returns something, even when all three disagree wildly. This refuses instead. Oracles disagreeing is exactly the situation where guessing is worst.",
   "what_it_does_not_fix": "Correlated failure. If every source ultimately reads the same handful of exchanges, three providers agreeing is three views of one fact, and no contract can tell that from genuine independence. Choosing sources that do not share plumbing is a judgement made when the agreement is written.",
-  "still_only_two_live": "2-of-3 is implemented and tested; only two independent providers are wired on Base Sepolia today, so what runs here is 2-of-2. Adding a third is registering another adapter.",
+  "three_sources_one_stale": "Three providers from three lineages are wired. On Base Sepolia the API3 dAPI has not been updated in weeks, so it is excluded as too old and NAMED in the reading rather than silently dropped — which is what a live 2-of-3 with one dead source is supposed to look like. It is a better demonstration than three healthy feeds would have been: the failure the freshness check exists for, happening for real.",
   "verify_it_yourself": [
-    "cast call 0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef \"sourceCount()(uint256)\" --rpc-url https://sepolia.base.org",
+    "cast call 0x3bd99d440e3678f1e9b004473359bb6bcbfbf53b \"sourceCount()(uint256)\" --rpc-url https://sepolia.base.org",
     "npx tsx scripts/deploy-multi-oracle.ts   # fetches a fresh attestation and repeats all of this"
   ],
-  "deployed_at": "2026-08-21T16:07:57.105Z"
+  "deployed_at": "2026-08-21T16:19:48.394Z"
 }

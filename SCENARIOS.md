@@ -60,6 +60,8 @@ Any combination in this table is expressible.
 | **S14b** | The same, verified by a contract | Pyth, `ON_CHAIN_VERIFIED` | — | — | — | Base Sepolia verifier | `oracle-on-chain-check.ts` |
 | **S14c** | **Two independent oracles must agree** | Pyth **+** Chainlink, m-of-n | — | — | — | Base Sepolia aggregator | `deploy-multi-oracle.ts` |
 | **S14d** | They disagree → nobody is paid | m-of-n, quorum not met | — | — | — | refuses on chain | `MultiOracleAggregator.t.sol` |
+| **S14e** | One provider dead, the rest settle | 2-of-3, one stale | — | — | — | Base Sepolia aggregator | live: API3 excluded |
+| **S14f** | A first-party API provider votes | signed feed, m-of-n reporters | — | — | — | any rail | `SignedFeedSource.t.sol` |
 | **S15** | Oracle as one claim among several | rules + judge + oracle | — | — | — | any rail | `cardano-judgement.ts` |
 | **S16** | Oracle unusable → nobody is paid | Pyth observation | — | — | — | any rail | `oracle-pyth` tests |
 | **S17** | Event-market settlement | Kalshi via Pyth | — | — | — | any rail | `run-market-judgements.ts` |
@@ -259,22 +261,38 @@ stale value, and a Pyth-wide fault was a Misharu-wide fault. No amount of
 signature checking fixes that; only a second, unrelated provider does.
 
 **`MultiOracleAggregator` is live at
-[`0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef`](https://sepolia.basescan.org/address/0x4b5c1d0dc03d335196d4f4b578b8907b1bcd2aef)**,
-over two genuinely independent sources:
+[`0x3bd99d440e3678f1e9b004473359bb6bcbfbf53b`](https://sepolia.basescan.org/address/0x3bd99d440e3678f1e9b004473359bb6bcbfbf53b)**,
+over three sources from three different lineages. The count is not the point —
+three sources that share plumbing are one source wearing three labels. What
+matters is that their failure modes differ:
 
-| source | kind | how it is checked |
+| source | lineage | how it is checked |
 |---|---|---|
-| **Pyth** | pull | a signed Wormhole attestation, verified on chain: guardian signatures, then Merkle inclusion in the signed root, then the price parsed out |
-| **Chainlink** | push | an answer already on chain; the adapter refuses an incomplete round, an answer carried over from an earlier round, and a non-positive answer |
+| **Pyth** | publishers aggregated on its own chain, attested over Wormhole | guardian signatures, then Merkle inclusion in the signed root, then the price parsed out — all on chain |
+| **Chainlink** | a decentralised node network reporting to an on-chain aggregator | refuses an incomplete round, an answer carried over from an earlier round, and a non-positive answer |
+| **API3** | first-party: the data providers sign their own data, no third-party node layer | refuses a missing timestamp and a non-positive value |
 
 A live ETH/USD read:
 
 ```
-pyth       $2385.16
-chainlink  $2388.21
-agreed     2 of 2 · spread 12 bps
-PRICE      $2386.69   (median of the agreeing set)
+pyth       $2394.70
+chainlink  $2396.00
+api3              —   too old
+agreed     2 of 3 · spread 5 bps
+PRICE      $2395.35   (median of the agreeing set)
 ```
+
+### The third source is dead, and that is the useful part
+
+The API3 dAPI on Base Sepolia **stopped updating 56 days ago** and reports
+$1,574 — about a third below the market. Testnet feeds lose their sponsorship
+and quietly stall.
+
+It is excluded as too old and **named in the reading**, and the other two
+settle. That is a better demonstration than three healthy feeds would have been:
+the exact failure the freshness check exists for, happening for real rather than
+in a fixture. A system that had silently averaged it in would have settled ETH
+at about $2,120.
 
 **Agreement is a band, not equality.** Two honest oracles never report the same
 integer — they sample different venues at different instants — so sources within
@@ -298,13 +316,35 @@ both returning zero agree with each other perfectly, form a majority, and settle
 a price of nothing. Non-positive readings are excluded before clustering, and a
 test asserts zeros do not agree with each other.
 
-**Honest limits.** 2-of-3 is implemented and tested, but only two independent
-providers are wired on Base Sepolia today — what runs there is **2-of-2**, and
-adding a third is registering another adapter. And this does not fix
-**correlated failure**: if every source ultimately reads the same handful of
-exchanges, three providers agreeing is three views of one fact, and no contract
-can tell that from genuine independence. Choosing sources that do not share
-plumbing is a judgement made when the agreement is written.
+### Bringing in an API provider, without trusting a relayer
+
+A contract cannot make an HTTP request, so every "API oracle" is really somebody
+putting the answer on chain. The only question is who you must trust to have
+done it faithfully — and if a relayer submits a number the contract believes,
+**the relayer is the oracle and the API is decoration**.
+
+`SignedFeedSource` is the answer: the provider signs `(chainId, contract,
+feedId, price, publishTime)`, the chain verifies against a pinned key set, and
+the relayer becomes a courier who cannot alter what they carry. Every field in
+that digest stops a replay — across chains, across deployments, across feeds,
+and across time.
+
+It requires **m of n reporters within the single provider**, so one compromised
+key is not enough. That is deliberately separate from the aggregator's own
+m-of-n: this asks "how sure are we that *this provider* said it", the other asks
+"how many *providers* agree".
+
+**The thing that must not be forgotten**: a provider whose data is derived from
+Pyth or Chainlink is not an independent source however impeccably it signs. It
+adds a signature and no information, while looking on chain exactly like genuine
+diversity.
+
+**Honest limits.** This does not fix **correlated failure**. The aggregator
+counts providers, not independence: if every source ultimately reads the same
+handful of exchanges, three agreeing is three views of one fact, and no contract
+can tell that from real diversity. Choosing sources that do not share plumbing
+is a judgement made when the agreement is written, and nothing here can make it
+for you.
 
 ### An agreement can require the chain, not just benefit from it
 
