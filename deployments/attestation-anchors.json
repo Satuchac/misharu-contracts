@@ -1,0 +1,27 @@
+{
+  "what_this_is": "Digests written to Cardano preprod so that 'this existed by time T' is a fact about a block rather than a claim in a document.",
+  "why": "An AWS Nitro attestation's certificates expire in about three hours. After that, the only evidence of when the document was produced is a timestamp its own author wrote, and nothing cryptographic prevents backdating. A block does what the signature cannot.",
+  "what_an_anchor_proves": "That these 32 bytes existed no later than the block carrying the transaction. Nothing about what they mean, who wrote them, or whether they are true.",
+  "metadata_label": 1852,
+  "anchors": [
+    {
+      "digest": "sha256:6bc0102d30b51c7f36b6501049973ac782400561ccfed849c37f234e6ba08c79",
+      "what": "AWS Nitro attestation sample",
+      "chain": "Cardano Preprod",
+      "tx": "f43e78bf4e1152e53b7b2fd3896c2770901d9d1fcc1d80cc1e48b5bb2ee2494d",
+      "anchored_at": "2026-08-16",
+      "verify": "npx tsx scripts/anchor-digest.ts --verify f43e78bf4e1152e53b7b2fd3896c2770901d9d1fcc1d80cc1e48b5bb2ee2494d",
+      "note": "The subject is the vendored 2022 sample in packages/attestation/fixtures, whose certificates expired long ago. Anchoring it demonstrates the mechanism; it does not make a 2022 document newer."
+    },
+    {
+      "chain": "Cardano Preprod",
+      "tx": "12ac55ce6626c5835e985d237c73ab45c3bbcbcf73cb4d7b78ad9186cb19c5f6",
+      "digest": "sha256:b865e0ad26c2564e21fa29f84c8dfa524d9615932f19d5fdb9629ff36c85aead",
+      "anchored_at": "2026-08-21",
+      "subject": "the verdict: manifest hash, evidence root and final verdict",
+      "what": "verdict base-sepolia-multi-oracle-accept-e1d3d",
+      "verify": "npx tsx scripts/anchor-receipt.ts --check deployments/cases/base-sepolia-multi-oracle-accept-e1d3d.json",
+      "note": "Anchors the VERDICT rather than the whole bundle: a bundle gains fields after settlement, so anchoring it whole would produce a digest nothing could reproduce later."
+    }
+  ]
+}

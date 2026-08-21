@@ -65,6 +65,7 @@ Any combination in this table is expressible.
 | **S14f** | A first-party API provider votes | signed feed, m-of-n reporters | — | — | — | Base Sepolia, live | `deploy-signed-feed.ts` |
 | **S14g** | Every oracle claim re-derived on chain | — | — | — | — | Base Sepolia | `oracle-scenarios.ts` |
 | **S14h** | **An agreement settled by an oracle quorum** | 2-of-3 oracles, no model | — | — | — | Base Sepolia, verifiable receipt | `multi-oracle-judgement.ts` |
+| **S18** | **A verdict whose age is anchored** | any | — | — | — | Cardano Preprod | `anchor-receipt.ts` |
 | **S15** | Oracle as one claim among several | rules + judge + oracle | — | — | — | any rail | `cardano-judgement.ts` |
 | **S16** | Oracle unusable → nobody is paid | Pyth observation | — | — | — | any rail | `oracle-pyth` tests |
 | **S17** | Event-market settlement | Kalshi via Pyth | — | — | — | any rail | `run-market-judgements.ts` |
@@ -143,6 +144,7 @@ These get conflated constantly, and they solve different problems.
 | **ZK predicate** | a measurement, proving only a boolean about it | everyone | the prover |
 | **Merkle membership proof** | which item, and its position | everyone | the prover |
 | **Oracle observation** | *nothing* — it is evidence, and it is public by design | — | everyone |
+| **Anchoring** | *nothing* — it hides no data; it bounds a verdict's AGE so the date cannot be moved | — | everyone |
 
 ### The one that matters most
 

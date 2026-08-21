@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.10.0",
-  "release_digest": "sha256:acab6241dad14c84515c5f7539a54b2f507e448fa8a27cdcfaac991c962517ba",
-  "built_at": "2026-08-21T18:17:29.753Z",
+  "version": "0.11.0",
+  "release_digest": "sha256:b4818fee9ec8f65c7a2de3a5ec5f15f70b9ed805f26fe52b595bafa92eaf01d5",
+  "built_at": "2026-08-21T19:58:37.564Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -269,6 +269,12 @@
       "what": "The VAA verifier on Base Sepolia, with the command to check an attestation yourself."
     },
     {
+      "path": "deployments/attestation-anchors.json",
+      "sha256": "sha256:faab4dfeaf0b25bd266f3e74e65ba68e10b21bbe98cee4a9a6a77e10b072a1b2",
+      "bytes": 1980,
+      "what": "Digests written to Cardano preprod so that 'this existed by time T' is a fact about a block rather than a claim in a document. An anchor is an upper bound on age and nothing else."
+    },
+    {
       "path": "tools/verify.js",
       "sha256": "sha256:b15439f89e32bd3d8845dd0dc2d3c81bb24fbcbcee713ccc2329930f2161ea93",
       "bytes": 19598,
@@ -330,8 +336,8 @@
     },
     {
       "path": "SCENARIOS.md",
-      "sha256": "sha256:8823fd157120d84d075b85e05d2e7ce0b8b3212120294ef90eb3b3992f544cb3",
-      "bytes": 30665,
+      "sha256": "sha256:57227f5bae5c27e2174438768ef62655f6c989798723e83c2f8d4f47b8b22cce",
+      "bytes": 30902,
       "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
     },
     {
