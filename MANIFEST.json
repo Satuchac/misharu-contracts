@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.8.1",
-  "release_digest": "sha256:15dd3a1d17253f41adff06068330d967492766ad858f4f9ebd39ea0cbb5cc0b0",
-  "built_at": "2026-08-21T16:31:27.785Z",
+  "version": "0.9.0",
+  "release_digest": "sha256:a9178da52f94f450abe8ebc5b96156b7934484b09f9a29dd8baab84ec9f6c4e1",
+  "built_at": "2026-08-21T17:08:50.038Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -312,8 +312,8 @@
     },
     {
       "path": "SCENARIOS.md",
-      "sha256": "sha256:26d68ba428e42e4ddea1404f52c244ecd6b35e493ed493c6feb2b636eb7b1af3",
-      "bytes": 28972,
+      "sha256": "sha256:28a53cc7a1aa0a20b89f76ab19d61b6d3a156843cbe2bdd97420638dbb24f9bc",
+      "bytes": 30541,
       "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
     },
     {

@@ -63,6 +63,7 @@ Any combination in this table is expressible.
 | **S14e** | One provider dead, the rest settle | 2-of-3, one stale | — | — | — | Base Sepolia aggregator | live: API3 excluded |
 | **S14f** | A first-party API provider votes | signed feed, m-of-n reporters | — | — | — | Base Sepolia, live | `deploy-signed-feed.ts` |
 | **S14g** | Every oracle claim re-derived on chain | — | — | — | — | Base Sepolia | `oracle-scenarios.ts` |
+| **S14h** | **An agreement settled by an oracle quorum** | 2-of-3 oracles, no model | — | — | — | Base Sepolia, verifiable receipt | `multi-oracle-judgement.ts` |
 | **S15** | Oracle as one claim among several | rules + judge + oracle | — | — | — | any rail | `cardano-judgement.ts` |
 | **S16** | Oracle unusable → nobody is paid | Pyth observation | — | — | — | any rail | `oracle-pyth` tests |
 | **S17** | Event-market settlement | Kalshi via Pyth | — | — | — | any rail | `run-market-judgements.ts` |
@@ -450,6 +451,7 @@ Real bundles, verifiable offline with `pnpm verify`:
 | `eth-sepolia-demo-job11-accept.json` | The demo path, end to end |
 | `solana-devnet-oracle_price_bet-*.json` | A parametric bet settled from a guardian-verified Pyth observation, with the full oracle trail |
 | `cardano-preprod-settled-*.json` | Rules, a judge panel and an oracle in one agreement |
+| `base-sepolia-multi-oracle-*.json` | A parametric agreement settled by 2 of 3 independent oracles read on chain, with what every source said |
 
 167 bundles in `deployments/cases/`. **44 verify offline end to end; 123 cannot
 be verified at all and say why in their own bundle** — most predate persistent
@@ -485,6 +487,38 @@ Stated because a capability table that lists only capabilities is marketing.
   walking Pyth's Merkle profile in Solidity, which is left to the caller.
 - **An audit.** *THREAT-MODEL.md* (engine repository) is written by the implementer
   and has the blind spot that implies.
+
+---
+
+## 7a. An agreement the oracles actually decided
+
+All of the above worked in isolation and had decided nothing. Contracts nothing
+uses are a demo, however well tested.
+
+`scripts/multi-oracle-judgement.ts` closes the loop: a parametric agreement
+whose claim is settled by a quorum of independent oracles read on chain, ending
+in a case bundle that verifies offline like every other one.
+
+```
+pyth       $2408.45
+chainlink  $2405.85
+api3       excluded: too old
+agreed 2 of 3, spread 10 bps  ->  $2407.15
+outcome ACCEPT   (strike 2358.43, committed and signed before settlement)
+```
+
+**The agreement commits to which oracles decide it**, how many must agree, and
+how far apart they may be — all before the prices exist. A quorum or a band
+chosen at settlement would be chosen by whoever is losing.
+
+The bundle's `oracle_trail` records what **each** source said, including the one
+that was excluded and why. A trail showing only the winning number would be
+asking to be believed.
+
+And its `does_not_claim` list is the part worth reading: that a quorum agreeing
+proves they *agree*, not that the market was there; that the aggregator counts
+providers rather than independence; and that this run exercised the oracle path
+without moving escrow funds.
 
 ---
 
