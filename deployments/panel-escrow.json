@@ -1,0 +1,35 @@
+{
+  "what_this_is": "JudgeEscrowV2 on Base Sepolia: an escrow a PANEL settles rather than a single finalizer key. The panel is committed at job creation and nothing moves until a quorum of its members signs.",
+  "network": "Base Sepolia",
+  "chain_id": 84532,
+  "escrow": "0x6911674eb41a86c0319cbd3035d450c8767caae7",
+  "key_registry": "0x4ac5bb913a56475e08b7406d2c408ff058831298",
+  "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  "job_id": "1",
+  "record_provisional_tx": "0xad847aaa884e23631aebd7d904ae72481fb57a1be7d7498bbaf1ead1e538e974",
+  "panel": {
+    "quorum": 3,
+    "size": 5,
+    "commitment": "0xe16f5fff05f29767d122a77804615f6e27787ff612ff0c76b66283d7e1a59983",
+    "members": [
+      "0x12f9BdDb7A2E6D053991193c90A2eeeE91cb7f76",
+      "0x6fE498C39668998FCa922840C085323175c8a95F",
+      "0xa543Bc96012Bb4Ab94a1A534754E491E210A9675",
+      "0xBC53A989D7e35a2C0b2E8EB226429D623C5632ae",
+      "0xcF2537cFf4746E3AD4109d74bD03b39d2c9dc7ff"
+    ]
+  },
+  "proven_on_chain": [
+    "one member's signature is refused on a 3-of-5",
+    "two members' signatures are refused",
+    "three distinct committed members record the verdict"
+  ],
+  "what_changed_from_v1": "V1 consumes ONE finalizer signature. A 5-of-9 panel decision was recorded by nine people and executed by one key: the receipt proved a quorum agreed, and the escrow could not tell whether it had. V2 checks the signatures against the panel the AGREEMENT named, not against the platform's finalizer registry, because a panel is whoever the two parties chose.",
+  "why_the_panel_is_committed": "keccak256(quorum, sortedMembers) is stored at creation. Without it a caller could supply a panel of their own choosing — every signature would verify against it perfectly, and the settlement would be authorised by people the agreement never named.",
+  "v1_still_works": "Jobs created with no panel commitment take the single-finalizer path unchanged, so V1 behaviour is preserved rather than deprecated by fiat. The two paths refuse each other explicitly.",
+  "verify_it_yourself": [
+    "cast call 0x6911674eb41a86c0319cbd3035d450c8767caae7 \"jobStatus(uint256)(uint8)\" 1 --rpc-url https://sepolia.base.org",
+    "cast call 0x6911674eb41a86c0319cbd3035d450c8767caae7 \"provisionalDigest(uint256,bytes32,uint16,uint64)(bytes32)\" 1 0xec0bdb6d4c6dc56296cc6d7fe808dada1bee6f0139346e641474041c1c059035 10000 1787336234 --rpc-url https://sepolia.base.org"
+  ],
+  "deployed_at": "2026-08-21T18:15:29.357Z"
+}

@@ -1,6 +1,6 @@
 # Misharu contracts
 
-**Version 0.9.0** · release digest `sha256:a9178da52f94f450abe8ebc5b96156b7934484b09f9a29dd8baab84ec9f6c4e1`
+**Version 0.10.0** · release digest `sha256:acab6241dad14c84515c5f7539a54b2f507e448fa8a27cdcfaac991c962517ba`
 
 The deployed escrow contracts behind [Misharu](https://misharu.176-102-64-240.sslip.io),
 their compiled artifacts, the addresses they run at, and the evidence that the
@@ -100,6 +100,8 @@ bytes, not a moving branch.
 - **`evm/JudgeEscrowV1.sol`** — Escrow: funding, submission, provisional verdict, challenge window, finalize, timeout refund.
 - **`evm/JudgeFundingVault.sol`** — Funds judge evaluation separately, with a capped platform fee and a timelock on raising it.
 - **`evm/JudgeKeyRegistry.sol`** — Which keys may sign a verdict for a given judge.
+- **`evm/PanelQuorum.sol`** — m distinct members of a COMMITTED panel must sign. The panel is committed as keccak256(quorum, sortedMembers) so a caller cannot supply one of their own choosing; sorting makes a duplicate member impossible to express at all.
+- **`evm/JudgeEscrowV2.sol`** — An escrow a PANEL settles rather than a single finalizer key. V1 consumed one signature, so a 5-of-9 decision was recorded by nine people and executed by one. Signatures are checked against the panel the AGREEMENT named, not the platform's registry, because a panel is whoever the two parties chose. Jobs with no panel take the V1 path unchanged, and the two paths refuse each other.
 - **`cardano/judge_escrow.ak`** — Aiken validator, Plutus V3. FinalizeAccept / FinalizeReject / Expire / MutualCancel.
 - **`cardano/aiken.toml`** — Build configuration, including the exact stdlib revision the artifact was compiled against.
 - **`cardano/plutus.json`** — Compiled blueprint: the script bytes and their hash. blake2b-224 of the script reproduces the on-chain hash.

@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.9.0",
-  "release_digest": "sha256:a9178da52f94f450abe8ebc5b96156b7934484b09f9a29dd8baab84ec9f6c4e1",
-  "built_at": "2026-08-21T17:08:50.038Z",
+  "version": "0.10.0",
+  "release_digest": "sha256:acab6241dad14c84515c5f7539a54b2f507e448fa8a27cdcfaac991c962517ba",
+  "built_at": "2026-08-21T18:17:29.753Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -33,6 +33,24 @@
       "sha256": "sha256:bcd8828f2beff09726794a46a07d72c0d82ac65de357cac0f1260e097c63cce6",
       "bytes": 2094,
       "what": "Which keys may sign a verdict for a given judge."
+    },
+    {
+      "path": "evm/PanelQuorum.sol",
+      "sha256": "sha256:d0a708f1c340075af79d0fe4d6e3ec02102cb8d5d556b1204614945bf4fb7d6b",
+      "bytes": 7566,
+      "what": "m distinct members of a COMMITTED panel must sign. The panel is committed as keccak256(quorum, sortedMembers) so a caller cannot supply one of their own choosing; sorting makes a duplicate member impossible to express at all."
+    },
+    {
+      "path": "evm/JudgeEscrowV2.sol",
+      "sha256": "sha256:55e4a70a94ff903f9a9679383d3aeac787ebc3ea71f046c6a60603f7c9d5478b",
+      "bytes": 29550,
+      "what": "An escrow a PANEL settles rather than a single finalizer key. V1 consumed one signature, so a 5-of-9 decision was recorded by nine people and executed by one. Signatures are checked against the panel the AGREEMENT named, not the platform's registry, because a panel is whoever the two parties chose. Jobs with no panel take the V1 path unchanged, and the two paths refuse each other."
+    },
+    {
+      "path": "deployments/panel-escrow.json",
+      "sha256": "sha256:50d99526398eb7349eff74ef5c7088ef887bd43a09d0188ac654d40e33907126",
+      "bytes": 2480,
+      "what": "JudgeEscrowV2 on Base Sepolia, with a live 3-of-5: one and two signatures refused, three distinct committed members recording the verdict."
     },
     {
       "path": "cardano/judge_escrow.ak",
@@ -312,8 +330,8 @@
     },
     {
       "path": "SCENARIOS.md",
-      "sha256": "sha256:28a53cc7a1aa0a20b89f76ab19d61b6d3a156843cbe2bdd97420638dbb24f9bc",
-      "bytes": 30541,
+      "sha256": "sha256:8823fd157120d84d075b85e05d2e7ce0b8b3212120294ef90eb3b3992f544cb3",
+      "bytes": 30665,
       "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
     },
     {

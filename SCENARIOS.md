@@ -47,6 +47,7 @@ Any combination in this table is expressible.
 | **S2** | Two people and one AI agent | panel 2-of-3 | — | — | — | ZK rail only | `scenarios.ts` |
 | **S3** | Committee sign-off | panel 4-of-6, human | — | — | — | ZK rail only | `scenarios.ts` |
 | **S4** | Grant milestone review | panel 5-of-9, mixed | — | — | — | ZK rail only | `scenarios.ts` |
+| **S4b** | **A panel quorum enforced on EVM** | panel 3-of-5 | — | — | — | Base Sepolia, live | `deploy-panel-escrow.ts` |
 | **S5** | Deadlocked panel | panel 2-of-3 | — | — | — | nothing settles | `scenarios.ts` |
 | **S6** | Confidential audit | panel 2-of-3 | **+** | **+** | — | ZK rail only | `scenarios.ts` |
 | **S7** | Confidential fee | panel 2-of-3 | — | — | **+** | ZK rail only | `scenarios.ts` |
@@ -464,9 +465,9 @@ produced by running the verifier, not asserted by hand.
 
 Stated because a capability table that lists only capabilities is marketing.
 
-- **On-chain quorum on four of the five rails.** Base, Cardano, Solana and Sui
-  check one signature each. A panel settlement there is verifiable but relayed
-  by a single finalizer: detectable, not prevented. Only Midnight enforces m-of-n.
+- **On-chain quorum on Cardano, Solana and Sui.** They check one signature each,
+  so a panel settlement there is verifiable but relayed by a single finalizer:
+  detectable, not prevented. Base Sepolia and Midnight now enforce m-of-n.
 - **A TEE.** The judge — human or model — reads the evidence. Nothing stops the
   operator of an agent seat from reading it too.
 - **Asymmetric quorums.** "Two of five releases, but four of five refunds" is a
