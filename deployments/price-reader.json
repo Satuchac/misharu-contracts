@@ -1,0 +1,18 @@
+{
+  "what_this_is": "Reads a Pyth price from a guardian-signed attestation, on chain: verifies the VAA, proves the price message is inside the signed Merkle root, and applies the freshness and confidence policy. The number no longer comes from our adapter.",
+  "network": "Base Sepolia",
+  "chain_id": 84532,
+  "address": "0x309ae7a1ac0090e1d0d21c776b7956f3c0c63fb6",
+  "deploy_tx": "0xcaae9927be7bd372fabfd3622e1b241ec7d5beea0a8a42100f13e87e160dbb00",
+  "deploy_gas": "474514",
+  "read_gas": "145935",
+  "vaa_verifier": "0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd",
+  "what_changed": "WormholeVaaVerifier proved the guardians signed some bytes; the price itself was still a number our adapter pulled out and told you about. A dishonest adapter could pair a genuine attestation with a different price and every signature check would pass. Now the number comes out of the signed Merkle root on chain.",
+  "policy_on_chain": "Staleness and confidence used to be checked by our adapter — the party who benefits from being trusted. Both are enforced here, so a settlement cannot use a stale or wide-confidence price even if our adapter would have allowed it.",
+  "what_this_still_trusts": "The Wormhole guardian federation and Pyth's publisher aggregate. And it is all Pyth: nothing cross-checks a second provider, so a Pyth-wide fault is a Misharu-wide fault.",
+  "verify_it_yourself": [
+    "cast call 0x309ae7a1ac0090e1d0d21c776b7956f3c0c63fb6 \"readPrice(bytes,bytes,bytes20[],bytes32,uint256,uint256)\" ... --rpc-url https://sepolia.base.org",
+    "npx tsx scripts/deploy-price-reader.ts   # fetches a fresh attestation and repeats all of this"
+  ],
+  "deployed_at": "2026-08-21T13:18:34.805Z"
+}

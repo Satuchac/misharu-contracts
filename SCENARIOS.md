@@ -88,6 +88,22 @@ never vote quietly turns a 2-of-3 into unanimous-or-nothing.
 
 ## 4. Quorums
 
+**There are two different quorums in this system and they are not related.**
+
+| quorum | who sets it | ours to choose? |
+|---|---|---|
+| **Panel quorum** — how many signers must agree to release or refund | the agreement | **yes**: 2-of-3, 4-of-6, 5-of-9 |
+| **Wormhole guardian quorum** — 13 of 19 | the Wormhole federation | **no** |
+
+The second is `floor(2n/3)+1` over Wormhole's guardian set, which has nineteen
+members. It is not a dial. Accepting fewer would mean accepting an attestation
+Wormhole itself considers invalid, and five colluding guardians could then sign
+any price they liked — which would make the on-chain verification worth nothing.
+The verifier computes it from the set size rather than storing it, so it cannot
+drift from the set it describes.
+
+Everything below is about the **panel** quorum, which is ours.
+
 The quorum must be a **majority**. At 2-of-4, two signers vote to release while
 two vote to refund and *both* thresholds are met at once; which one happened
 would depend on the order the votes arrived. Two disjoint majorities cannot
@@ -192,6 +208,34 @@ because the digest moves and the recovered addresses stop being guardians.
 Every case bundle records which level each observation reached, how many
 signatures were recovered, and the Merkle root — so a reader can tell a price
 the chain confirmed from one we merely relayed.
+
+### The chain reads the number too, not just the signatures
+
+Verifying the VAA left something behind that is easy to miss: the *price* was
+still a number our adapter pulled out of the payload and told you about. A
+dishonest adapter could take a genuine, fully verified attestation and report a
+different price, and every signature check would pass.
+
+**`PythPriceReader` is live at
+[`0x309ae7a1ac0090e1d0d21c776b7956f3c0c63fb6`](https://sepolia.basescan.org/address/0x309ae7a1ac0090e1d0d21c776b7956f3c0c63fb6).**
+It verifies the attestation, then proves the price message is inside the
+keccak160 Merkle root the guardians signed, then parses the number out. A live
+ADA/USD read returned `0.21385063` and agreed with our adapter on the price, the
+publish time and the root. The same genuine attestation paired with a price that
+was never in it is **refused** — with every guardian signature still valid.
+
+**The freshness and confidence policy moved on chain with it.** Staleness and
+Pyth's own confidence width used to be checked by `checkObservation` in our
+adapter — which is to say, by the party who benefits from being trusted. Both
+are enforced by the contract now, so a settlement cannot use a stale or
+wide-confidence price even if our adapter would have allowed it. A read with a
+one-second age bound reverts against the same attestation that passes at an hour.
+
+Two smaller things it refuses that are worth naming: a **non-positive price**,
+which Pyth can publish during an outage and which would make every
+"≥ threshold" comparison below it trivially false; and a price dated **after the
+block**, because treating a clock disagreement as freshness would make a
+future-dated attestation the freshest thing available, forever.
 
 ### The upgrade is never silent, in either direction
 

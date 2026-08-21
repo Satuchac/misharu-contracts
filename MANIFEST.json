@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.4.0",
-  "release_digest": "sha256:09828e22f925fb4d970f0d0de8e5d4272e1b91d38d8227f95b6752e8ad4a5e31",
-  "built_at": "2026-08-21T13:01:19.414Z",
+  "version": "0.5.0",
+  "release_digest": "sha256:1e19956d55541fa133ef5cbecf713471b3a8e3b15a7c11aab91f5490c68f6367",
+  "built_at": "2026-08-21T13:20:17.897Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -185,6 +185,18 @@
       "what": "The pinned Wormhole guardian set the verifier is deployed with. Pinned on purpose: a contract accepting whatever set index a VAA declared would accept a set nobody told it about."
     },
     {
+      "path": "evm/oracle/PythPriceReader.sol",
+      "sha256": "sha256:4d372179bfe997240a617cb82355c88d172219f5a4fdd0fbf46cd8726383a3ca",
+      "bytes": 8713,
+      "what": "Reads the price out of the guardian-signed Merkle root and applies the freshness and confidence policy on chain. Closes the gap the VAA verifier left: proving the guardians signed some bytes says nothing about which number an adapter then pulled out of them."
+    },
+    {
+      "path": "deployments/price-reader.json",
+      "sha256": "sha256:4440456877a150bbec9ebc21020bb66d69f05a15c29864506cae459e8b005abe",
+      "bytes": 1699,
+      "what": "The price reader on Base Sepolia, with a live read that agreed with the off-chain adapter."
+    },
+    {
       "path": "deployments/vaa-verifier.json",
       "sha256": "sha256:d0edc4540b3df8d5777bcb9922a9f9f467aea4e75f5db395140ab4d858f61be2",
       "bytes": 2206,
@@ -246,8 +258,8 @@
     },
     {
       "path": "SCENARIOS.md",
-      "sha256": "sha256:954e0cde2ce8b0fa79983220539135d69b506ed8ba4fe76e476bab91011cb9ae",
-      "bytes": 17337,
+      "sha256": "sha256:89da132e29a66435a944a461ca30611a2824c90768fdf81b05c0b91bd1ad6975",
+      "bytes": 19917,
       "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
     },
     {
@@ -369,6 +381,14 @@
       "status": "deployed",
       "checked": "[read the ledger](https://indexer.preprod.midnight.network)",
       "how": "Compact 0.31.1 to proof-carrying circuits. Read the ledger from the public indexer — what is on chain is a commitment and a verdict, never the shielded value."
+    },
+    {
+      "rail": "Base Sepolia",
+      "contract": "Pyth price reader (Merkle + policy)",
+      "address": "0x309ae7a1ac0090e1d0d21c776b7956f3c0c63fb6",
+      "status": "deployed",
+      "checked": "[on chain](https://sepolia.basescan.org/address/0x309ae7a1ac0090e1d0d21c776b7956f3c0c63fb6)",
+      "how": "Verifies the attestation, proves the price message is in the signed Merkle root, and enforces freshness and confidence — so the number does not come from our adapter."
     },
     {
       "rail": "Base Sepolia",
