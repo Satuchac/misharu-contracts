@@ -57,6 +57,7 @@ Any combination in this table is expressible.
 | **S12** | Membership without disclosure | — | **+** | — | n/a | Base Sepolia verifier | `deploy-merkle-verifier.ts` |
 | **S13** | Cross-chain settlement | 1 AI judge | **+** on Midnight | — | **+** on Midnight | detectable, not prevented | `cross-chain-*.ts` |
 | **S14** | Parametric price bet | Pyth observation | — | — | — | Solana / Cardano | `run-market-judgements.ts` |
+| **S14b** | The same, verified by a contract | Pyth, `ON_CHAIN_VERIFIED` | — | — | — | Base Sepolia verifier | `oracle-on-chain-check.ts` |
 | **S15** | Oracle as one claim among several | rules + judge + oracle | — | — | — | any rail | `cardano-judgement.ts` |
 | **S16** | Oracle unusable → nobody is paid | Pyth observation | — | — | — | any rail | `oracle-pyth` tests |
 | **S17** | Event-market settlement | Kalshi via Pyth | — | — | — | any rail | `run-market-judgements.ts` |
@@ -161,15 +162,48 @@ payout.
 
 ### Two levels of trust, and the difference is not cosmetic
 
-| level | what it means | in our cases |
+| level | what it means | who you are trusting |
 |---|---|---|
-| `ADAPTER_TLS_ONLY` | we fetched it over HTTPS and signed what we saw. You are trusting our adapter and Pyth's TLS | 2 observations |
-| `ADAPTER_SIGNATURE_VERIFIED` | the **Wormhole VAA was parsed and guardian signatures recovered** — 13 of 19 guardians, against the pinned guardian set and the PythNet emitter | 62 observations |
+| `ADAPTER_TLS_ONLY` | we fetched it over HTTPS and signed what we saw | us, and Pyth's TLS |
+| `ADAPTER_SIGNATURE_VERIFIED` | **our adapter** parsed the Wormhole VAA and recovered guardian signatures — 13 of 19, against the pinned set and the PythNet emitter | us, to have checked honestly |
+| `ON_CHAIN_VERIFIED` | **a deployed contract** recovered them, and you can repeat the call yourself | the guardians and Pyth — not us |
 
-The second is the one worth having: it is checkable without trusting our adapter
-at all. Every case bundle records which level each observation reached, the
-number of signatures recovered, and the Merkle root — so a reader can tell a
-verified price from one we merely relayed.
+The third is new, and it is the one that removes us. `ADAPTER_SIGNATURE_VERIFIED`
+is a real check and still a claim *about us*: a reader who does not trust this
+project has to take the label on faith.
+
+**`WormholeVaaVerifier` is live on Base Sepolia at
+[`0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd`](https://sepolia.basescan.org/address/0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd).**
+It recovers each guardian signature with `ecrecover` over
+`keccak256(keccak256(body))`, requires floor(2n/3)+1 of them, requires strictly
+increasing guardian indices — which makes a repeated signature unrepresentable
+rather than merely detected — and requires the PythNet emitter, because
+guardians sign attestations from every chain Wormhole carries.
+
+```
+cast call 0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd \
+  "verify(bytes)" 0x<vaa-hex> --rpc-url https://sepolia.base.org
+```
+
+Nothing of ours is involved in that command. A live ADA/USD attestation verifies
+at ~165k gas; the same attestation with one byte of the body changed reverts,
+because the digest moves and the recovered addresses stop being guardians.
+
+Every case bundle records which level each observation reached, how many
+signatures were recovered, and the Merkle root — so a reader can tell a price
+the chain confirmed from one we merely relayed.
+
+### The upgrade is never silent, in either direction
+
+If the chain **cannot be reached**, the observation keeps the level it had and
+records that the stronger check was attempted and did not complete. An
+unreachable node is not evidence that a price is wrong, and a network failure
+must not quietly become a weaker claim wearing a stronger label.
+
+If the chain **refuses**, that is a different event entirely: our adapter and a
+public contract disagree about the same bytes, and one of them is wrong. The
+observation is not downgraded — it fails. Publishing a number two verifiers
+cannot agree about would be worse than publishing nothing.
 
 ### What makes an observation refused
 
@@ -263,11 +297,16 @@ Stated because a capability table that lists only capabilities is marketing.
   coherent thing to want and is not supported; the majority rule is symmetric.
 - **Panels over nine seats.** Nine `if` branches is where this construction
   stops being reasonable; a twenty-seat panel wants different machinery.
-- **On-chain oracle verification.** The guardian signatures are recovered
-  off-chain by our adapter and the result is signed. A contract that verified the
-  VAA itself would remove us from that step entirely; it is not built.
 - **Any oracle but Pyth.** One provider is a single point of failure, and
-  nothing here cross-checks a second source.
+  nothing here cross-checks a second source. This is now the largest remaining
+  gap on the oracle side.
+- **Guardian-set rotation without a redeploy.** The set index is pinned in the
+  verifier's constructor. That is deliberate — a contract that accepted whatever
+  index a VAA declared would accept a set nobody told it about — but it means a
+  rotation needs a new deployment, on purpose rather than by oversight.
+- **Price extraction on chain.** The verifier stops at the VAA: it answers "did
+  enough guardians sign these bytes". Pulling an individual price out means
+  walking Pyth's Merkle profile in Solidity, which is left to the caller.
 - **An audit.** *THREAT-MODEL.md* (engine repository) is written by the implementer
   and has the blind spot that implies.
 

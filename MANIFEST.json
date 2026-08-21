@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
-  "version": "0.3.1",
-  "release_digest": "sha256:08b1c1d4920bea0cf4b2b1c6ee6133579b4f1ba01dbb8d5a12c1a8df141eb5ce",
-  "built_at": "2026-08-20T06:36:12.224Z",
+  "version": "0.4.0",
+  "release_digest": "sha256:09828e22f925fb4d970f0d0de8e5d4272e1b91d38d8227f95b6752e8ad4a5e31",
+  "built_at": "2026-08-21T13:01:19.414Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -173,6 +173,24 @@
       "what": "Generated UltraHonk verifier for the membership circuit, live on Base Sepolia. Same unaudited memory-safe annotation."
     },
     {
+      "path": "evm/oracle/WormholeVaaVerifier.sol",
+      "sha256": "sha256:a23a29e3ac8bae47b07fb87543fed0ee30c8e7d4a663e830899c7895f5d03584",
+      "bytes": 8984,
+      "what": "Recovers Wormhole guardian signatures over a Pyth attestation and refuses anything short of quorum. Before this, 'the guardians signed it' was a claim our adapter made and signed; now a stranger can check the same bytes against a public node with nothing of ours involved."
+    },
+    {
+      "path": "evm/oracle/guardian-set.json",
+      "sha256": "sha256:848cd1bf0968cab97fb08c9434bb5784b111c6db7b2f1609b097a2cabb896f37",
+      "bytes": 1413,
+      "what": "The pinned Wormhole guardian set the verifier is deployed with. Pinned on purpose: a contract accepting whatever set index a VAA declared would accept a set nobody told it about."
+    },
+    {
+      "path": "deployments/vaa-verifier.json",
+      "sha256": "sha256:d0edc4540b3df8d5777bcb9922a9f9f467aea4e75f5db395140ab4d858f61be2",
+      "bytes": 2206,
+      "what": "The VAA verifier on Base Sepolia, with the command to check an attestation yourself."
+    },
+    {
       "path": "tools/verify.js",
       "sha256": "sha256:b15439f89e32bd3d8845dd0dc2d3c81bb24fbcbcee713ccc2329930f2161ea93",
       "bytes": 19598,
@@ -228,8 +246,8 @@
     },
     {
       "path": "SCENARIOS.md",
-      "sha256": "sha256:6d81824bfc566bc2510648852e8311129ec65c664a960d74dc240e37b4bdd4e9",
-      "bytes": 15033,
+      "sha256": "sha256:954e0cde2ce8b0fa79983220539135d69b506ed8ba4fe76e476bab91011cb9ae",
+      "bytes": 17337,
       "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
     },
     {
@@ -351,6 +369,14 @@
       "status": "deployed",
       "checked": "[read the ledger](https://indexer.preprod.midnight.network)",
       "how": "Compact 0.31.1 to proof-carrying circuits. Read the ledger from the public indexer — what is on chain is a commitment and a verdict, never the shielded value."
+    },
+    {
+      "rail": "Base Sepolia",
+      "contract": "Wormhole VAA verifier (Pyth attestations)",
+      "address": "0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd",
+      "status": "deployed",
+      "checked": "[on chain](https://sepolia.basescan.org/address/0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd)",
+      "how": "Call `verify(bytes)` with a Pyth attestation from Hermes. It recovers the guardian signatures itself, so the answer does not depend on our adapter."
     },
     {
       "rail": "Base Sepolia",

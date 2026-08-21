@@ -1,6 +1,6 @@
 # Misharu contracts
 
-**Version 0.3.1** · release digest `sha256:08b1c1d4920bea0cf4b2b1c6ee6133579b4f1ba01dbb8d5a12c1a8df141eb5ce`
+**Version 0.4.0** · release digest `sha256:09828e22f925fb4d970f0d0de8e5d4272e1b91d38d8227f95b6752e8ad4a5e31`
 
 The deployed escrow contracts behind [Misharu](https://misharu.176-102-64-240.sslip.io),
 their compiled artifacts, the addresses they run at, and the evidence that the
@@ -31,6 +31,7 @@ and the differences matter more than the addresses do.
 | Midnight Preprod | Judge predicates (ZK) | `ded9816a1c924e2676a59904a8faac609d9f74d7dc4f1da2a117ffb53c0c354b` | deployed | [read the ledger](https://indexer.preprod.midnight.network) |
 | Midnight Preprod | Judge registry (many agreements) | `6d0647c018577f7d701ecbbb736b9918be0a0039cd54256333679c2894022c54` | deployed | [read the ledger](https://indexer.preprod.midnight.network) |
 | Midnight Preprod | Judge multisig (m-of-n on chain) | `bfa7b78521cefa37c1ebdc811a316487854481693ab81507f1efb8eba9c57c1f` | deployed | [read the ledger](https://indexer.preprod.midnight.network) |
+| Base Sepolia | Wormhole VAA verifier (Pyth attestations) | `0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd` | deployed | [on chain](https://sepolia.basescan.org/address/0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd) |
 | Base Sepolia | ZK predicate verifier (UltraHonk) | `0x6ea82f8624c448a84a6c91b825d01ac687424749` | deployed | [on chain](https://sepolia.basescan.org/address/0x6ea82f8624c448a84a6c91b825d01ac687424749) |
 | Base Sepolia | ZK membership verifier (UltraHonk) | `0x0f127e9fc9cda6608d14085cb4f4f7f94cc290e2` | deployed | [on chain](https://sepolia.basescan.org/address/0x0f127e9fc9cda6608d14085cb4f4f7f94cc290e2) |
 
@@ -117,6 +118,8 @@ bytes, not a moving branch.
 - **`circuits/merkle-vectors.json`** — 7 trees, 30 inclusion cases, odd sizes included — a promoted node contributes no sibling, and a naive implementation drops it and still produces a plausible root.
 - **`evm/zk/PredicateVerifier.sol`** — Generated UltraHonk verifier for the predicate circuit, live on Base Sepolia. Its five assembly blocks are annotated memory-safe to compile; that annotation is UNAUDITED.
 - **`evm/zk/MerkleVerifier.sol`** — Generated UltraHonk verifier for the membership circuit, live on Base Sepolia. Same unaudited memory-safe annotation.
+- **`evm/oracle/WormholeVaaVerifier.sol`** — Recovers Wormhole guardian signatures over a Pyth attestation and refuses anything short of quorum. Before this, 'the guardians signed it' was a claim our adapter made and signed; now a stranger can check the same bytes against a public node with nothing of ours involved.
+- **`evm/oracle/guardian-set.json`** — The pinned Wormhole guardian set the verifier is deployed with. Pinned on purpose: a contract accepting whatever set index a VAA declared would accept a set nobody told it about.
 - **`tools/verify.js`** — Zero-dependency receipt verifier. Node or a browser, no install. Reports INCOMPLETE where a check could not run — a check that did not happen is never a pass.
 - **`tools/README.md`** — How to run the verifier and what each result means.
 - **`tools/panel.mjs`** — The panel rules: what makes a quorum valid, and how votes are counted. Published so a tally can be recomputed from the votes without asking our server anything.

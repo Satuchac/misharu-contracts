@@ -1,0 +1,29 @@
+{
+  "what_this_is": "A Wormhole VAA verifier live on Base Sepolia. It recovers guardian signatures over a Pyth attestation and refuses anything short of quorum — so a settlement conditioned on a price no longer depends on our adapter having checked it.",
+  "network": "Base Sepolia",
+  "chain_id": 84532,
+  "address": "0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd",
+  "deploy_tx": "0x7763a79953d5203b46ea89dc55be3134db2dbc96434d84cd4682c9c08eaffdf7",
+  "deploy_gas": "960769",
+  "verification_gas": "125709",
+  "guardian_set": {
+    "index": 7,
+    "size": 19,
+    "quorum": 13
+  },
+  "emitter": {
+    "chain": 26,
+    "address": "0xe101faedac5851e32b9b23b5f9411a8c2bac4aae3ed4dd7b811dd1a72ea4aa71",
+    "what": "PythNet accumulator"
+  },
+  "what_changed": "Before this, verification_level ADAPTER_SIGNATURE_VERIFIED meant 'our adapter recovered the guardian signatures and signed the result'. A reader was trusting us to have checked. Now the chain recovers them, and a stranger can repeat the check with nothing of ours.",
+  "what_this_still_trusts": "The Wormhole guardian federation and Pyth's publisher aggregate. A quorum of guardians signing an accumulator root proves the network published it; it does not prove the number was right, and no signature scheme could.",
+  "what_it_does_not_do": "It stops at the VAA. Extracting an individual price means walking Pyth's Merkle profile, which is left to the caller — this contract's single job is 'did enough guardians sign these bytes'.",
+  "guardian_set_rotation": "The set index is PINNED at construction. A VAA declaring any other index is refused rather than trusted: rotation is governance data, and a contract accepting whatever index it was handed would accept a set nobody told it about. Rotation therefore needs a redeploy, on purpose.",
+  "verify_it_yourself": [
+    "cast call 0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd \"quorum()(uint256)\" --rpc-url https://sepolia.base.org",
+    "cast call 0x7a3afd62416b127026cf888ecd3ba1e97e76a3cd \"verify(bytes)\" 0x<vaa-hex> --rpc-url https://sepolia.base.org",
+    "npx tsx scripts/gen-vaa-fixtures.ts   # fetch a fresh attestation from Hermes"
+  ],
+  "deployed_at": "2026-08-21T12:56:12.708Z"
+}
