@@ -1,0 +1,26 @@
+{
+  "what_this_is": "JudgeEscrowV3: the settlement must pay what the verdict awarded. V2 let the verdict hash and the shares describe different decisions, and in our own data they did.",
+  "chain": "Ethereum Sepolia",
+  "chain_id": 11155111,
+  "escrow": "0xc0d22192a742c6acf5d7a49ece45c51c9628d0e3",
+  "key_registry": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
+  "token": "0xf623Dc199cB30cC9e12fAd8bBB5962ecAc80Dc58",
+  "deploy_tx": "0x3955a08d89bac27bc42b26bb2b352d7bae333cab1701f4a35d990d174c9a7cd9",
+  "deployer": "0x252298725bdec8AaBB1504f8aC239b0CbC2745C4",
+  "deployed_at": "2026-08-22T19:48:41.247Z",
+  "proof": {
+    "what_this_shows": "V3 refuses an unchallenged finalization that pays anything other than what the provisional awarded — the exact divergence that let Base Sepolia job 9 commit an INDETERMINATE verdict allocating nothing and pay the provider 9900 in the same transaction.",
+    "accept_job_id": 1,
+    "accept_settle_tx": "0xd95f05e9e54b61f782dc5633ded2a71072b78a30f741028a39b8b6a6ca7909f5",
+    "settled_allocation_read_from_storage": {
+      "provider_bps": 9900,
+      "buyer_bps": 0,
+      "fee_bps": 100
+    },
+    "contradicting_job_id": 2,
+    "contradiction_refused_with": "SettlementContradictsProvisional(0, 9900, 100)",
+    "refusal_method": "eth_call against the deployed bytecode and live chain state — the contract declining, not a local simulation",
+    "still_settles_honestly": "status 7 (Refunded)",
+    "checked_at": "2026-08-22T20:04:50.901Z"
+  }
+}

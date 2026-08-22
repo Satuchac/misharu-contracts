@@ -1,6 +1,6 @@
 # Misharu contracts
 
-**Version 0.11.0** · release digest `sha256:b4818fee9ec8f65c7a2de3a5ec5f15f70b9ed805f26fe52b595bafa92eaf01d5`
+**Version 0.11.0** · release digest `sha256:929a984c0ff4969e8fc324c980cab6880532cca733b23d9a939a157ef9431270`
 
 The deployed escrow contracts behind [Misharu](https://misharu.176-102-64-240.sslip.io),
 their compiled artifacts, the addresses they run at, and the evidence that the
@@ -137,6 +137,12 @@ bytes, not a moving branch.
 - **`tools/canonical.mjs`** — JCS canonical JSON and the domain-separated commitments everything is signed over.
 - **`tools/amount.mjs`** — Committed amounts: how a price is hidden from the panel, and how the two parties reproduce the digest.
 - **`SCENARIOS.md`** — Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built.
+- **`cardano/groth16.ak`** — A Groth16 BLS12-381 verifier in Aiken: e(A,B) == e(alpha,beta)*e(vk_x,gamma)*e(C,delta), built on Cardano's own pairing builtins.
+- **`cardano/groth16.test.ak`** — Fifteen tests over a real snarkjs proof: malformed points abort, valid-but-wrong points are rejected by the pairing, and the public inputs must match the key.
+- **`cardano/vectors/cardano.json`** — A real Groth16 BLS12-381 proof (multiplier, 3*11=33) in Cardano's compressed encodings, re-verified off chain with @noble/curves before it was written.
+- **`cardano/vectors/budget.json`** — What the verification actually costs on chain: 28.5% of a mainnet transaction's CPU budget and 0.43% of its memory, measured rather than estimated.
+- **`evm/JudgeEscrowV3.sol`** — An unchallenged finalization must pay what the provisional awarded, and the shares paid are stored rather than only emitted. Written after six of our own cases were found settling against the verdicts they published.
+- **`SETTLEMENT-AUDIT.md`** — What was found, why nothing caught it, and the same question asked of all five rails — including the three that record no verdict on chain at all.
 
 ## Licence
 

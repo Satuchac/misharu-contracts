@@ -1,8 +1,8 @@
 {
   "name": "misharu-contracts",
   "version": "0.11.0",
-  "release_digest": "sha256:b4818fee9ec8f65c7a2de3a5ec5f15f70b9ed805f26fe52b595bafa92eaf01d5",
-  "built_at": "2026-08-21T19:58:37.564Z",
+  "release_digest": "sha256:929a984c0ff4969e8fc324c980cab6880532cca733b23d9a939a157ef9431270",
+  "built_at": "2026-08-22T20:56:08.178Z",
   "what_this_is": "The deployed Misharu escrow contracts, their compiled artifacts, the addresses they run at, and the evidence that the deployed code matches this source. The adjudication engine is not part of this release.",
   "what_this_is_not": [
     "Not audited. Verified means the deployed bytecode matches this source; it does not mean this source is correct.",
@@ -54,8 +54,8 @@
     },
     {
       "path": "cardano/judge_escrow.ak",
-      "sha256": "sha256:8f732d3bf1c62f3d6238bfe62466f44d5823e5d00e7f1f25ec2b714c6adbaf55",
-      "bytes": 4085,
+      "sha256": "sha256:0e5656540ab8ec71936a7b5fbe31bf2304c40c708962deeaab737324a16fde8e",
+      "bytes": 8294,
       "what": "Aiken validator, Plutus V3. FinalizeAccept / FinalizeReject / Expire / MutualCancel."
     },
     {
@@ -66,20 +66,20 @@
     },
     {
       "path": "cardano/plutus.json",
-      "sha256": "sha256:6039408782d2efb47191c7a10ce3b9522e362ad3c9a5371c6974ed32f0f98a2b",
-      "bytes": 6925,
+      "sha256": "sha256:7428b3e8a5911f0a0f9ac4c398b32710a86dd2c95814490f8e8bfff117b65da5",
+      "bytes": 7935,
       "what": "Compiled blueprint: the script bytes and their hash. blake2b-224 of the script reproduces the on-chain hash."
     },
     {
       "path": "cardano/script-address.txt",
-      "sha256": "sha256:b5c09b68a0698768f63e3ab29e019de73f198d9f8382fa6905638ccfbf1b8e14",
+      "sha256": "sha256:0110aa57e19aa719c8ad9efe5e101ad7edea7e9bbb2443a3373594289bfe7dcf",
       "bytes": 64,
       "what": "The Preprod address the blueprint compiles to."
     },
     {
       "path": "solana/lib.rs",
-      "sha256": "sha256:4dc51b9a8d2f1225a24a8364070bb85dfa8b292ba34e4b7fa049c2a2567a21ab",
-      "bytes": 15860,
+      "sha256": "sha256:6703c232d5fa8c380c69d6a38a2f180ec5eab0919f8341829d7c79d1c7fb8817",
+      "bytes": 20409,
       "what": "Native Rust program: create-and-fund, submit, record provisional, finalize, expire-and-refund."
     },
     {
@@ -90,8 +90,8 @@
     },
     {
       "path": "sui/judge_escrow.move",
-      "sha256": "sha256:02fb170f71a3348e4adcbe8b85cd230a2e26e67839d8c4ecdd951731dd28ebc8",
-      "bytes": 11834,
+      "sha256": "sha256:c8b8f25a113455a5070e07559c63485a5721683b06bf67f9eee75b552fb14047",
+      "bytes": 13609,
       "what": "Move module, including the two-step mutual cancel."
     },
     {
@@ -102,14 +102,14 @@
     },
     {
       "path": "deployments/registry.json",
-      "sha256": "sha256:2ecc35245c758513ac803a19fe3c368e54c92b6feccad8640090656c61bca438",
-      "bytes": 15883,
+      "sha256": "sha256:a103f9aac56b0e0633ecda853fb93a9f34d35c978bb048205bcd3bca27a8eba8",
+      "bytes": 16494,
       "what": "Every deployment: network, address, and when it was recorded."
     },
     {
       "path": "deployments/known-addresses.json",
-      "sha256": "sha256:454c6cb1607f2997a95dd23189fdd5e442bc394d1c229f70de09aded349dddf4",
-      "bytes": 13134,
+      "sha256": "sha256:eefe215e159fce16acb771573e02ea6166d28c54356058378d2964a6ce62f358",
+      "bytes": 14070,
       "what": "Named addresses, so a reader can tell a deployer from a party."
     },
     {
@@ -339,6 +339,66 @@
       "sha256": "sha256:57227f5bae5c27e2174438768ef62655f6c989798723e83c2f8d4f47b8b22cce",
       "bytes": 30902,
       "what": "Every supported combination of decider, privacy, oracle and rail, with what each one costs and what is not built."
+    },
+    {
+      "path": "cardano/groth16.ak",
+      "sha256": "sha256:2af09994e3008e08374ea42043f951274ef187b113cfa78b1e739ed4e2a48d26",
+      "bytes": 5170,
+      "what": "A Groth16 BLS12-381 verifier in Aiken: e(A,B) == e(alpha,beta)*e(vk_x,gamma)*e(C,delta), built on Cardano's own pairing builtins."
+    },
+    {
+      "path": "cardano/groth16.test.ak",
+      "sha256": "sha256:d2bb4c5efca897a1eed04c34005ce0b3a53518194dc74c37ace6b300c4c37721",
+      "bytes": 11110,
+      "what": "Fifteen tests over a real snarkjs proof: malformed points abort, valid-but-wrong points are rejected by the pairing, and the public inputs must match the key."
+    },
+    {
+      "path": "cardano/vectors/cardano.json",
+      "sha256": "sha256:673b34e73f4378e054bb6318634d9fbe396c4322b172a73b42001dbb0338c76f",
+      "bytes": 2287,
+      "what": "A real Groth16 BLS12-381 proof (multiplier, 3*11=33) in Cardano's compressed encodings, re-verified off chain with @noble/curves before it was written."
+    },
+    {
+      "path": "cardano/vectors/budget.json",
+      "sha256": "sha256:4c86993327346f72438853df958b0483cde8880e66642abdc2689aed1340c59d",
+      "bytes": 456,
+      "what": "What the verification actually costs on chain: 28.5% of a mainnet transaction's CPU budget and 0.43% of its memory, measured rather than estimated."
+    },
+    {
+      "path": "evm/JudgeEscrowV3.sol",
+      "sha256": "sha256:f6bb815ee9dbc17dd95298ae23fec2d2342cbf24b0d559868e90e161e731fcbe",
+      "bytes": 34935,
+      "what": "An unchallenged finalization must pay what the provisional awarded, and the shares paid are stored rather than only emitted. Written after six of our own cases were found settling against the verdicts they published."
+    },
+    {
+      "path": "SETTLEMENT-AUDIT.md",
+      "sha256": "sha256:fe88ea51fa0357c0e337d28380831fb2f6f3f53d2bbc98e43edbeb92fd7e0a9d",
+      "bytes": 12352,
+      "what": "What was found, why nothing caught it, and the same question asked of all five rails — including the three that record no verdict on chain at all."
+    },
+    {
+      "path": "deployments/escrow-v3-base.json",
+      "sha256": "sha256:093b48a5639461f99d336e46af0c09a3339fb1b9bdd9b4d00fff1f5bcd484294",
+      "bytes": 1494,
+      "what": "JudgeEscrowV3 on Base Sepolia, with the transaction where the deployed bytecode REFUSED a settlement that contradicted its provisional."
+    },
+    {
+      "path": "deployments/escrow-v3-eth.json",
+      "sha256": "sha256:47522b540d6febf1aa134a218a7bf52cc5cbf78c8b0790b51fb1132568f7037e",
+      "bytes": 1501,
+      "what": "The same, on Ethereum Sepolia."
+    },
+    {
+      "path": "deployments/non-evm-escrows.json",
+      "sha256": "sha256:6c30965e76b3d6c54eb12f8c37e168f151ea60a18c75599f3b205d28133fdade",
+      "bytes": 2215,
+      "what": "Cardano, Solana and Sui after the audit: each now requires a settlement to NAME the verdict it implements. Includes the Solana in-place-upgrade caveat that must not be repeated on mainnet."
+    },
+    {
+      "path": "deployments/cardano-escrow-versions.json",
+      "sha256": "sha256:6ef8a2ab6b3fdb0bdf5ddade5771f8dcc8b04cb244de9117c242a9c7659a6da4",
+      "bytes": 1770,
+      "what": "The Cardano validator, versioned. v2 carries verdict_hash in the finalize redeemers; v1 recorded no verdict at all. Both script addresses, and how to reproduce the hash yourself."
     },
     {
       "path": "LICENSE",
@@ -585,7 +645,8 @@
           "token_symbol": "tUSDC",
           "token_decimals": 6,
           "token_verified_on_chain": "decimals()=6, symbol()=tUSDC via eth_call, 2026-08-14",
-          "token_caveat": "Anyone-mintable test token. It has no value and no issuer, and is deliberately NOT in the accepted asset registry — that list is for assets a payment can be denominated in. This one exists so the funding path can be exercised end to end without begging a faucet."
+          "token_caveat": "Anyone-mintable test token. It has no value and no issuer, and is deliberately NOT in the accepted asset registry — that list is for assets a payment can be denominated in. This one exists so the funding path can be exercised end to end without begging a faucet.",
+          "escrow_v3": "0xb40ce7eb0f1bc1712dde81e057c7dfe9353b9df8"
         },
         "deployed_at": "2026-07-28",
         "explorer": "https://sepolia.basescan.org/address/0x386E4A8caccad480FEa8D4611F9b365879cba218",
@@ -595,7 +656,8 @@
           "https://base-sepolia-rpc.publicnode.com",
           "https://base-sepolia.drpc.org",
           "https://base-sepolia.gateway.tenderly.co"
-        ]
+        ],
+        "escrow_v3_note": "JudgeEscrowV3: an unchallenged finalization must pay what the provisional awarded, and the shares paid are stored rather than only emitted. See docs/SETTLEMENT-AUDIT.md."
       },
       {
         "id": "eth-sepolia-demo",
@@ -608,9 +670,11 @@
         "contracts": {
           "escrow": "0x9e1F8018587b96e9637dF7159Aed26eB855C7c35",
           "registry": "0x5c4E6dC4EEaB8747C5ef34B916aCFF629a83Df17",
-          "token": "0xf623Dc199cB30cC9e12fAd8bBB5962ecAc80Dc58"
+          "token": "0xf623Dc199cB30cC9e12fAd8bBB5962ecAc80Dc58",
+          "escrow_v3": "0xc0d22192a742c6acf5d7a49ece45c51c9628d0e3"
         },
-        "explorer": "https://sepolia.etherscan.io/address/0x9e1F8018587b96e9637dF7159Aed26eB855C7c35"
+        "explorer": "https://sepolia.etherscan.io/address/0x9e1F8018587b96e9637dF7159Aed26eB855C7c35",
+        "escrow_v3_note": "JudgeEscrowV3: an unchallenged finalization must pay what the provisional awarded, and the shares paid are stored rather than only emitted. See docs/SETTLEMENT-AUDIT.md."
       }
     ],
     "non_evm": [

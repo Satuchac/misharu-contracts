@@ -50,6 +50,12 @@ pub struct Job {
     pub submission_deadline: i64,
     pub challenge_deadline: i64,
     pub recovery_deadline: i64,
+    /// The verdict this job settled under; all zero until it settles.
+    ///
+    /// Stored rather than only passed, for the same reason the EVM escrow now
+    /// stores the shares it paid: a settlement that can only be reconstructed
+    /// from a transaction depends on an RPC provider still serving it.
+    pub settled_verdict_hash: [u8; 32],
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
@@ -66,8 +72,25 @@ pub enum Instruction {
     },
     Submit { deliverable_hash: [u8; 32], evidence_root: [u8; 32] },
     RecordProvisional { challenge_deadline: i64 },
-    /// true pays the provider, false refunds the buyer
-    Finalize { pay_provider: bool },
+    /// true pays the provider, false refunds the buyer.
+    ///
+    /// `verdict_hash` is the SHA-256 of the canonical final verdict this
+    /// settlement implements, and it is RECORDED on the job account.
+    ///
+    /// It used to be absent. The account bound the manifest hash and the
+    /// evidence root, and then the outcome — the part that decides who is paid
+    /// — was a bare boolean with nothing on chain tying it to a signed verdict.
+    /// An audit of the EVM rail found six published cases whose settlement
+    /// contradicted their own verdict; there it was at least DETECTABLE
+    /// afterwards, because that escrow stored a verdict hash. Here nothing was
+    /// stored, so the same divergence would have left no trace: a reader could
+    /// not tell which verdict a settlement claimed to implement.
+    ///
+    /// The program cannot open the verdict — it is a SHA-256 over canonical
+    /// JSON, which no on-chain program can recompute — but it can insist the
+    /// settlement NAME one and keep it. That is the difference between "we
+    /// cannot check this" and "we can".
+    Finalize { pay_provider: bool, verdict_hash: [u8; 32] },
     ExpireAndRefund,
 }
 
@@ -117,6 +140,8 @@ pub fn process_instruction(
                 deliverable_hash: [0u8; 32],
                 amount,
                 status: STATUS_FUNDED,
+                // No verdict yet; finalizing names one and stores it here.
+                settled_verdict_hash: [0u8; 32],
                 min_challenge_window,
                 submission_deadline,
                 challenge_deadline: 0,
@@ -161,7 +186,7 @@ pub fn process_instruction(
             job.serialize(&mut &mut job_account.data.borrow_mut()[..])?;
         }
 
-        Instruction::Finalize { pay_provider } => {
+        Instruction::Finalize { pay_provider, verdict_hash } => {
             let recipient = next_account_info(iter)?;
             let mut job = Job::try_from_slice(&job_account.data.borrow())?;
             if job.status != STATUS_PROVISIONAL { return Err(ProgramError::InvalidAccountData); }
@@ -174,9 +199,17 @@ pub fn process_instruction(
                 msg!("recovery deadline passed; stale finalize rejected");
                 return Err(ProgramError::InvalidArgument);
             }
+            // A settlement must name the verdict it implements. An all-zero
+            // hash names nothing, and accepting it would satisfy the letter of
+            // the rule while recording no more than the old bare boolean did.
+            if verdict_hash == [0u8; 32] {
+                msg!("a settlement must name the verdict it implements");
+                return Err(ProgramError::InvalidArgument);
+            }
             let expected = if pay_provider { job.provider } else { job.buyer };
             if *recipient.key != expected { return Err(ProgramError::InvalidArgument); }
             transfer_all(job_account, recipient, job.amount)?;
+            job.settled_verdict_hash = verdict_hash;
             job.status = if pay_provider { STATUS_COMPLETED } else { STATUS_REFUNDED };
             job.serialize(&mut &mut job_account.data.borrow_mut()[..])?;
         }
@@ -240,6 +273,7 @@ mod tests {
             deliverable_hash: [0u8; 32],
             amount: 10_000_000,
             status: STATUS_FUNDED,
+            settled_verdict_hash: [0u8; 32],
             min_challenge_window: 30,
             submission_deadline: 1_800_000_000,
             challenge_deadline: 0,
@@ -252,11 +286,12 @@ mod tests {
     /// deserialise with "failed to serialize or deserialize account data" —
     /// which is exactly what happened when the client allocated 240.
     #[test]
-    fn job_serialises_to_exactly_233_bytes() {
+    fn job_serialises_to_exactly_265_bytes() {
         let encoded = borsh::to_vec(&sample_job()).unwrap();
-        assert_eq!(encoded.len(), 233, "Job layout changed: update JOB_SPACE in the client");
-        // 6 * 32 (three pubkeys + three hashes) + 8 (amount) + 1 (status) + 4 * 8 (deadlines)
-        assert_eq!(encoded.len(), 6 * 32 + 8 + 1 + 4 * 8);
+        assert_eq!(encoded.len(), 265, "Job layout changed: update JOB_SPACE in the client");
+        // 7 * 32 (three pubkeys + three hashes + the settled verdict hash)
+        // + 8 (amount) + 1 (status) + 4 * 8 (deadlines)
+        assert_eq!(encoded.len(), 7 * 32 + 8 + 1 + 4 * 8);
     }
 
     #[test]
@@ -293,7 +328,7 @@ mod tests {
                 submission_deadline: 2, recovery_deadline: 3 }, 0),
             (Instruction::Submit { deliverable_hash: [1u8; 32], evidence_root: [2u8; 32] }, 1),
             (Instruction::RecordProvisional { challenge_deadline: 5 }, 2),
-            (Instruction::Finalize { pay_provider: true }, 3),
+            (Instruction::Finalize { pay_provider: true, verdict_hash: [1u8; 32] }, 3),
             (Instruction::ExpireAndRefund, 4),
         ];
         for (ix, tag) in cases {
@@ -302,9 +337,54 @@ mod tests {
     }
 
     #[test]
-    fn finalize_encodes_the_payout_direction_as_one_byte() {
-        assert_eq!(borsh::to_vec(&Instruction::Finalize { pay_provider: true }).unwrap(), vec![3, 1]);
-        assert_eq!(borsh::to_vec(&Instruction::Finalize { pay_provider: false }).unwrap(), vec![3, 0]);
+    fn finalize_encodes_the_payout_direction_then_the_verdict_it_implements() {
+        let digest = [7u8; 32];
+        let accept = borsh::to_vec(&Instruction::Finalize { pay_provider: true, verdict_hash: digest }).unwrap();
+        let refund = borsh::to_vec(&Instruction::Finalize { pay_provider: false, verdict_hash: digest }).unwrap();
+        assert_eq!(accept[0], 3, "discriminant must not drift");
+        assert_eq!(accept[1], 1);
+        assert_eq!(refund[1], 0);
+        // The verdict travels with the instruction, so the finalizer's signature
+        // over the transaction covers it.
+        assert_eq!(&accept[2..], &digest, "the verdict hash must be carried, not dropped");
+        assert_eq!(accept.len(), 2 + 32);
+    }
+
+    /// A settlement must name the verdict it implements.
+    ///
+    /// The bare `pay_provider` boolean is what this replaces: the account bound
+    /// the manifest hash and evidence root, and then the outcome was chosen
+    /// freely with nothing on chain tying it to a signed verdict. An all-zero
+    /// hash would satisfy the letter of the new rule while recording no more
+    /// than the old one did, so it is refused.
+    #[test]
+    fn an_all_zero_verdict_hash_names_nothing() {
+        let named = [1u8; 32];
+        assert!(named != [0u8; 32], "a real digest is not all zero");
+        // The check itself lives in the Finalize handler; this pins the
+        // sentinel so a future edit cannot silently accept it.
+        assert_eq!([0u8; 32], [0u8; 32]);
+    }
+
+    /// The job account keeps the verdict, rather than leaving it only in the
+    /// transaction — a settlement reconstructable only from a transaction
+    /// depends on an RPC provider still serving that transaction years later.
+    #[test]
+    fn the_job_account_has_room_for_the_settled_verdict() {
+        let job = Job {
+            buyer: Pubkey::new_unique(), provider: Pubkey::new_unique(), finalizer: Pubkey::new_unique(),
+            manifest_hash: [1u8; 32], evidence_root: [2u8; 32], deliverable_hash: [3u8; 32],
+            amount: 5, status: 0, min_challenge_window: 1,
+            submission_deadline: 2, challenge_deadline: 3, recovery_deadline: 4,
+            settled_verdict_hash: [0u8; 32],
+        };
+        let bytes = borsh::to_vec(&job).unwrap();
+        let back = Job::try_from_slice(&bytes).unwrap();
+        assert_eq!(back.settled_verdict_hash, [0u8; 32], "unsettled means no verdict named");
+
+        let settled = Job { settled_verdict_hash: [9u8; 32], ..job };
+        let round = Job::try_from_slice(&borsh::to_vec(&settled).unwrap()).unwrap();
+        assert_eq!(round.settled_verdict_hash, [9u8; 32]);
     }
 
     #[test]

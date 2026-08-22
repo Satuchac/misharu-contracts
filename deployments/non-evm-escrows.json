@@ -1,0 +1,25 @@
+{
+  "what_this_is": "The non-EVM escrows, after the settlement audit. All three recorded the manifest hash and the evidence root and then took the OUTCOME as a bare boolean or constructor choice, with nothing on chain tying it to a signed verdict. Each now requires the settlement to NAME the verdict it implements, and keeps it. See docs/SETTLEMENT-AUDIT.md.",
+  "solana": {
+    "cluster": "devnet",
+    "program_id": "954m2xXzhNpGCMrPL2chQGk8PjaAJ7i9i9B1F5JSsUZ5",
+    "deploy_signature": "zeRVBigqwYB7hH3dEENRXXn8zvWoqMEPonmJFmNCAZxupob6Yy21CNXKMgPuH4VaDFd6k5bH8DboRgTk6iF4c2g",
+    "change": "Finalize now carries verdict_hash: [u8;32]; an all-zero hash is refused. Job gained settled_verdict_hash.",
+    "upgraded_in_place": true,
+    "BREAKING": "This was an in-place upgrade of an existing program id, and the Job account grew from 233 to 265 bytes. borsh's try_from_slice rejects a short buffer, so any job account created by the OLD program can no longer be deserialized by this one. Every devnet job at that address is already settled, so nothing is stranded \u2014 but a mainnet upgrade must not be done this way. There it needs a new program id, or a versioned account layout.",
+    "deployed_at": "2026-08-22"
+  },
+  "sui": {
+    "network": "testnet",
+    "package_v2": "0xa2ac23b071c90fccc3cd450f26b4c883b7ce070012f66b832fc88f1983c82fc5",
+    "publish_digest": "B4ye7NzC1bztxoBWebDFG4259P9KYSFFp7dPryUDVx7K",
+    "package_v1": "0x2285a350cde9429d611d9211efa39f71e13dd70f24370f39d779c3edd699bcb0",
+    "change": "finalize(job, pay_provider, verdict_hash, clock, ctx); a non-32-byte hash aborts with EVerdictNotNamed. Job gained settled_verdict_hash with a public accessor.",
+    "why_a_new_package_not_an_upgrade": "Adding a field to a struct with `key` is not an upgrade-compatible change in Sui, so this is a fresh package rather than an upgrade of 0x2285a350. Jobs created under v1 remain settleable under v1.",
+    "deployed_at": "2026-08-22"
+  },
+  "cardano": {
+    "network": "preprod",
+    "note": "See deployments/cardano-escrow-versions.json \u2014 a Cardano validator is supplied in the spending transaction rather than deployed, so v2 is usable at its new script address immediately."
+  }
+}

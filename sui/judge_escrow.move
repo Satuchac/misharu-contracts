@@ -42,6 +42,8 @@ const ENotCounterparty: u64 = 12;
 const ENoCancelProposal: u64 = 13;
 const EAllocationInvalid: u64 = 14;
 const EAllocationMismatch: u64 = 15;
+/// A settlement that does not name the verdict it implements.
+const EVerdictNotNamed: u64 = 16;
 
 // ---------------------------------------------------------------- status
 
@@ -75,6 +77,19 @@ public struct Job has key {
     /// Allocation the proposer offered, in basis points to the provider. The
     /// accepting party must repeat it, so both sides commit to the same terms.
     cancel_provider_bps: u64,
+    /// The verdict this job settled under. Empty until it settles.
+    ///
+    /// It used to be absent entirely. The object bound the manifest hash and
+    /// the evidence root, and then the outcome — the part deciding who is paid
+    /// — was a bare boolean with nothing on chain tying it to a signed verdict.
+    /// An audit of the EVM rail found six published cases whose settlement
+    /// contradicted their own verdict; there it was at least DETECTABLE
+    /// afterwards, because that escrow stored a verdict hash. Here nothing was
+    /// stored, so the same divergence would have left no trace.
+    ///
+    /// Move cannot open the verdict — it is a SHA-256 over canonical JSON — but
+    /// it can insist the settlement NAME one and keep it.
+    settled_verdict_hash: vector<u8>,
 }
 
 public struct JobCreated has copy, drop { job: address, buyer: address, provider: address, amount: u64 }
@@ -122,6 +137,8 @@ public fun create_and_fund(
         recovery_deadline_ms,
         cancel_proposer: option::none(),
         cancel_provider_bps: 0,
+        // No verdict yet; finalizing names one and stores it here.
+        settled_verdict_hash: vector::empty<u8>(),
     };
     event::emit(JobCreated { job: object::uid_to_address(&job.id), buyer: job.buyer, provider, amount });
     transfer::share_object(job);
@@ -166,14 +183,23 @@ public fun record_provisional(
 
 /// Consume the verdict. `pay_provider` true releases, false refunds.
 /// Only after the challenge window, only before the recovery deadline.
+///
+/// `verdict_hash` is the 32-byte SHA-256 of the canonical final verdict this
+/// settlement implements. It is recorded on the object, so a settlement can be
+/// compared to the decision it claims to carry out.
 public fun finalize(
     job: &mut Job,
     pay_provider: bool,
+    verdict_hash: vector<u8>,
     clock: &Clock,
     ctx: &mut TxContext,
 ) {
     assert!(job.status == STATUS_PROVISIONAL, EWrongState);
     assert!(ctx.sender() == job.finalizer, ENotFinalizer);
+    // A settlement must NAME the verdict it implements. Anything other than a
+    // 32-byte digest names nothing, and accepting an empty vector would satisfy
+    // the letter of the rule while recording no more than the old bare boolean.
+    assert!(vector::length(&verdict_hash) == 32, EVerdictNotNamed);
     let now = clock::timestamp_ms(clock);
     assert!(now >= job.challenge_deadline_ms, EChallengeWindowOpen);
     assert!(now < job.recovery_deadline_ms, ERecoveryDeadlinePassed);
@@ -181,6 +207,7 @@ public fun finalize(
     let amount = balance::value(&job.escrow);
     let payout = coin::from_balance(balance::split(&mut job.escrow, amount), ctx);
     let recipient = if (pay_provider) { job.provider } else { job.buyer };
+    job.settled_verdict_hash = verdict_hash;
     job.status = if (pay_provider) { STATUS_COMPLETED } else { STATUS_REFUNDED };
     transfer::public_transfer(payout, recipient);
     event::emit(Finalized { job: object::uid_to_address(&job.id), to: recipient, amount });
@@ -272,5 +299,8 @@ fun is_active(job: &Job): bool {
 public fun status(job: &Job): u8 { job.status }
 public fun amount(job: &Job): u64 { job.amount }
 public fun manifest_hash(job: &Job): vector<u8> { job.manifest_hash }
+
+/// The verdict this job settled under; empty while it has not settled.
+public fun settled_verdict_hash(job: &Job): vector<u8> { job.settled_verdict_hash }
 public fun evidence_root(job: &Job): vector<u8> { job.evidence_root }
 public fun locked(job: &Job): u64 { balance::value(&job.escrow) }

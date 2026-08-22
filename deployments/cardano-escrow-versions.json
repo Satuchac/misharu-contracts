@@ -1,0 +1,21 @@
+{
+  "what_this_is": "The Cardano escrow validator, versioned. v2 makes the settlement NAME the verdict it implements: FinalizeAccept and FinalizeReject carry a 32-byte verdict_hash, which the finalizer's signature covers because the redeemer is part of the transaction. v1 recorded no verdict at all, so a settlement could not be compared to the decision it claimed to implement. See docs/SETTLEMENT-AUDIT.md.",
+  "versions": [
+    {
+      "version": 2,
+      "script_hash": "280dbbeefcd6967378a373caee64907eb0648ceb7ad5d6dfd6b1a751",
+      "preprod": "addr_test1wq5qmwlwlntfvumc5deu4mnyjpltqeyvadadt4kl66c6w5g3xmyre",
+      "mainnet": "addr1wy5qmwlwlntfvumc5deu4mnyjpltqeyvadadt4kl66c6w5g2w0cvu",
+      "change": "FinalizeAccept/FinalizeReject now carry verdict_hash; a non-32-byte hash is refused. Expire is exempt by design \u2014 requiring a verdict on the unblockable refund would let an absent judge trap the funds.",
+      "built_at": "2026-08-22"
+    },
+    {
+      "version": 1,
+      "preprod": "addr_test1wqd64yljcz2qay89xucwgnh5pmjpw04e3qa44qtjra8hwqgtv5j4z",
+      "change": "Bare FinalizeAccept/FinalizeReject. Bound the manifest hash and evidence root but recorded no verdict.",
+      "status": "superseded; jobs already locked at this address still settle under it",
+      "note_on_this_record": "Captured by hand: scripts/cardano-script-address.ts rewrites script-address.txt as a side effect, so reading that file after running it returns the NEW address. The v1 value here is the one the file held before the rebuild, and it is the address the 12 settled Cardano cases point at."
+    }
+  ],
+  "how_to_check": "blake2b-224 of the compiled script reproduces the hash above \u2014 no third party needed. Run: npx tsx scripts/cardano-script-address.ts"
+}

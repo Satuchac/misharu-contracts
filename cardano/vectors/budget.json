@@ -1,0 +1,17 @@
+{
+  "note": "Measured by `aiken check`, not estimated. Regenerate with scripts/record-groth16-budget.sh.",
+  "circuit": "multiplier a*b=c (3*11=33), snarkjs Groth16 BLS12-381",
+  "public_inputs": 2,
+  "measured": {
+    "cpu": 2847240214,
+    "memory": 70607
+  },
+  "mainnet_limits": {
+    "epoch": 650,
+    "max_tx_ex_steps": 10000000000,
+    "max_tx_ex_mem": 16500000
+  },
+  "cpu_pct_of_budget": 28.5,
+  "mem_pct_of_budget": 0.43,
+  "tests_passing": 15
+}
